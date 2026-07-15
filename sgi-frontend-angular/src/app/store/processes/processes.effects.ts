@@ -14,7 +14,7 @@ export class ProcessesEffects {
       ofType(ProcActions.loadProcesses),
       mergeMap(({ organizationId, page, pageSize, search, processType, status }) => {
         const params = new URLSearchParams();
-        params.set('organization_id', organizationId);
+        if (organizationId) params.set('organization_id', organizationId);
         params.set('page', String(page || 1));
         params.set('page_size', String(pageSize || 20));
         if (search) params.set('search', search);
@@ -38,16 +38,17 @@ export class ProcessesEffects {
   loadTree$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProcActions.loadProcessTree),
-      mergeMap(({ organizationId }) =>
-        this.api
-          .get<any>(`/processes/tree?organization_id=${organizationId}`)
+      mergeMap(({ organizationId }) => {
+        const orgParam = organizationId ? `organization_id=${organizationId}` : '';
+        return this.api
+          .get<any>(`/processes/tree${orgParam ? '?' + orgParam : ''}`)
           .pipe(
             map((res) => ProcActions.loadProcessTreeSuccess({ tree: res.tree })),
             catchError((err) =>
               of(ProcActions.loadProcessesFailure({ error: err.error?.detail || 'Error' }))
             )
-          )
-      )
+          );
+      })
     )
   );
 

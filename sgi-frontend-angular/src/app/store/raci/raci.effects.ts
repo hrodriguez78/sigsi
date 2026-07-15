@@ -14,7 +14,7 @@ export class RaciEffects {
       ofType(RaciActions.loadRaciMatrices),
       mergeMap(({ organizationId, page, pageSize, search }) => {
         const params = new URLSearchParams();
-        params.set('organization_id', organizationId);
+        if (organizationId) params.set('organization_id', organizationId);
         params.set('page', String(page || 1));
         params.set('page_size', String(pageSize || 20));
         if (search) params.set('search', search);

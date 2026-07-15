@@ -14,7 +14,7 @@ export class DocumentsEffects {
       ofType(DocActions.loadDocuments),
       mergeMap(({ organizationId, page, pageSize, search, documentType, status }) => {
         const params = new URLSearchParams();
-        params.set('organization_id', organizationId);
+        if (organizationId) params.set('organization_id', organizationId);
         params.set('page', String(page || 1));
         params.set('page_size', String(pageSize || 20));
         if (search) params.set('search', search);

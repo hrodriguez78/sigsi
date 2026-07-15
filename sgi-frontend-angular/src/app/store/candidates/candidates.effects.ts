@@ -13,7 +13,7 @@ export class CandidatesEffects {
       ofType(CandActions.loadCandidates),
       mergeMap(({ organizationId, page, pageSize, search, status, processId }) => {
         const params = new URLSearchParams();
-        params.set('organization_id', organizationId);
+        if (organizationId) params.set('organization_id', organizationId);
         params.set('page', String(page || 1));
         params.set('page_size', String(pageSize || 20));
         if (search) params.set('search', search);
