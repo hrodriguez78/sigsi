@@ -58,7 +58,7 @@ jobs:
         MONGO_HOST: mongodb://localhost:27017
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: backend-test-results
         path: sgi-backend-fastapi/tests/
@@ -77,7 +77,7 @@ jobs:
     - name: Save image
       run: |
         docker save ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }} | gzip > backend-image.tar.gz
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: backend-image
         path: backend-image.tar.gz
@@ -118,7 +118,7 @@ jobs:
     - name: Save image
       run: |
         docker save ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ github.sha }} | gzip > nginx-image.tar.gz
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: nginx-image
         path: nginx-image.tar.gz
