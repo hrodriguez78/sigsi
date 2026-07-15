@@ -1,0 +1,71 @@
+<div class="raci-matrix-page" *ngIf="matrix">
+  <div class="detail-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div class="header-info">
+        <h1>{{ matrix.name }}</h1>
+        <p class="subtitle" *ngIf="matrix.description">{{ matrix.description }}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="editMatrix()">
+        <span class="material-icons">edit</span> Editar
+      </button>
+      <button class="btn btn-danger" (click)="deleteMatrix()">
+        <span class="material-icons">delete</span> Eliminar
+      </button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-title">Leyenda:</span>
+    <span class="legend-item" *ngFor="let opt of raciOptions">
+      <span class="legend-dot" [style.background]="opt.color"></span>
+      {{ opt.label }}
+    </span>
+  </div>
+
+  <div class="matrix-wrapper" *ngIf="matrix.process_ids.length > 0 && matrix.role_names.length > 0">
+    <table class="raci-table">
+      <thead>
+        <tr>
+          <th class="process-col">Proceso</th>
+          <th *ngFor="let role of matrix.role_names" class="role-col">
+            <span class="role-header">{{ role }}</span>
+            <button class="remove-btn" (click)="removeRole(role)" title="Eliminar rol">
+              <span class="material-icons">close</span>
+            </button>
+          </th>
+        </tr>
+      </thead>
+      <tbody cdkDropList (cdkDropListDropped)="onProcessDrop($event)">
+        <tr *ngFor="let pid of matrix.process_ids" cdkDrag>
+          <td class="process-cell" cdkDragHandle>
+            <span class="drag-handle material-icons">drag_indicator</span>
+            {{ pid }}
+          </td>
+          <td *ngFor="let role of matrix.role_names"
+              class="raci-cell"
+              [style.background]="getRaciColor(getRaciValue(pid, role)) + '22'"
+              (click)="cycleRaci(pid, role)">
+            <span class="raci-value"
+                  [style.color]="getRaciColor(getRaciValue(pid, role))"
+                  [style.font-weight]="getRaciValue(pid, role) ? '700' : '400'">
+              {{ getRaciValue(pid, role) || '—' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="matrix.process_ids.length === 0 || matrix.role_names.length === 0">
+    <span class="material-icons empty-icon">grid_on</span>
+    <h3>Matriz incompleta</h3>
+    <p>Agrega procesos y roles para completar la matriz RACI</p>
+  </div>
+</div>
+
+<app-loading-spinner *ngIf="loading" message="Cargando matriz RACI..."></app-loading-spinner>

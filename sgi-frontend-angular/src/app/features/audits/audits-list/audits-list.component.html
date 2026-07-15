@@ -1,0 +1,134 @@
+<div class="audits-list">
+  <app-page-header title="Auditorías" subtitle="Gestión de auditorías ISO 27001">
+    <button class="btn btn-outline" (click)="exportData()">
+      <span class="material-icons">download</span> Exportar Excel
+    </button>
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nueva Auditoría
+    </a>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Buscar auditorías..."
+        [(ngModel)]="filters.search"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filters.audit_type"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of auditTypeOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filters.status"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+  </div>
+
+  <app-loading-spinner
+    *ngIf="loading"
+    message="Cargando auditorías..."
+  ></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Auditor</th>
+          <th>Fechas</th>
+          <th>Hallazgos</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let audit of audits">
+          <td class="title-cell">{{ audit.title }}</td>
+          <td>
+            <span class="badge" [ngClass]="getAuditTypeBadgeClass(audit.audit_type)">
+              {{ getAuditTypeLabel(audit.audit_type) }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(audit.status)">
+              {{ getStatusLabel(audit.status) }}
+            </span>
+          </td>
+          <td>{{ audit.auditor_name || '-' }}</td>
+          <td class="dates-cell">{{ getDateRange(audit) }}</td>
+          <td class="count-cell">
+            <span class="findings-count" [class.has-findings]="audit.findings_count > 0">
+              {{ audit.findings_count }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button
+              class="btn-icon"
+              title="Ver detalle"
+              (click)="viewAudit(audit.id)"
+            >
+              <span class="material-icons">visibility</span>
+            </button>
+            <button
+              class="btn-icon"
+              title="Editar"
+              (click)="editAudit(audit.id)"
+            >
+              <span class="material-icons">edit</span>
+            </button>
+            <button
+              class="btn-icon btn-icon--danger"
+              title="Eliminar"
+              (click)="confirmDelete(audit)"
+            >
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="audits.length === 0">
+      <span class="material-icons empty-icon">fact_check</span>
+      <p>No se encontraron auditorías</p>
+    </div>
+
+    <div class="table-footer">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalItems]="total"
+        [pageSize]="pageSize"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Auditoría"
+  [message]="'¿Está seguro de eliminar la auditoría \'' + (auditToDelete?.title || '') + '\'?'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

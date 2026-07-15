@@ -1,0 +1,178 @@
+<div class="document-detail" *ngIf="!loading; else loadingTpl">
+  <ng-container *ngIf="document; else notFoundTpl">
+    <div class="document-detail__header">
+      <div class="header__left">
+        <button class="btn btn--back" (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
+          Volver
+        </button>
+        <div class="header__info">
+          <div class="header__title-row">
+            <h1 class="header__title">{{ document.title }}</h1>
+            <span class="badge badge--version">v{{ document.current_version }}</span>
+          </div>
+          <div class="header__meta">
+            <span class="meta-item">
+              <span class="material-icons">code</span>
+              {{ document.code }}
+            </span>
+            <span class="meta-item">
+              <span class="material-icons">category</span>
+              {{ typeLabels[document.document_type] || document.document_type }}
+            </span>
+            <span class="meta-item" *ngIf="document.published_at">
+              <span class="material-icons">event</span>
+              Publicado: {{ document.published_at | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="header__actions">
+        <button class="btn btn--secondary" (click)="editDocument()">
+          <span class="material-icons">edit</span>
+          Editar
+        </button>
+        <button
+          class="btn btn--primary"
+          *ngIf="document.status === 'borrador'"
+          (click)="submitForReview()"
+        >
+          <span class="material-icons">send</span>
+          Enviar a Revisión
+        </button>
+        <button
+          class="btn btn--success"
+          *ngIf="document.status === 'en_revision'"
+          (click)="approveDocument()"
+        >
+          <span class="material-icons">check_circle</span>
+          Aprobar
+        </button>
+        <button
+          class="btn btn--danger"
+          *ngIf="document.status === 'en_revision'"
+          (click)="rejectDocument()"
+        >
+          <span class="material-icons">cancel</span>
+          Rechazar
+        </button>
+        <button
+          class="btn btn--primary"
+          *ngIf="document.status === 'aprobado'"
+          (click)="publishDocument()"
+        >
+          <span class="material-icons">publish</span>
+          Publicar
+        </button>
+        <button
+          class="btn btn--warning"
+          *ngIf="document.status === 'publicado'"
+          (click)="archiveDocument()"
+        >
+          <span class="material-icons">archive</span>
+          Archivar
+        </button>
+      </div>
+    </div>
+
+    <div class="document-detail__workflow">
+      <h3 class="section-title">Flujo de Estado</h3>
+      <div class="workflow">
+        <div
+          *ngFor="let step of workflowSteps; let i = index"
+          class="workflow__step"
+          [class.workflow__step--completed]="isStepCompleted(step)"
+          [class.workflow__step--active]="isStepActive(step)"
+        >
+          <div class="workflow__step-indicator">
+            <span class="material-icons" *ngIf="isStepCompleted(step) && !isStepActive(step)">check_circle</span>
+            <span class="material-icons" *ngIf="isStepActive(step)">radio_button_checked</span>
+            <span class="material-icons" *ngIf="!isStepCompleted(step) && !isStepActive(step)">radio_button_unchecked</span>
+          </div>
+          <span class="workflow__step-label">{{ statusLabels[step] }}</span>
+        </div>
+        <div class="workflow__line" *ngIf="document.status !== 'archivado' && document.status !== 'obsoleto'"></div>
+      </div>
+      <div class="workflow__current-status">
+        Estado actual:
+        <span class="badge" [ngClass]="{
+          'badge--gray': document.status === 'borrador',
+          'badge--blue': document.status === 'en_revision',
+          'badge--green': document.status === 'aprobado',
+          'badge--darkgreen': document.status === 'publicado',
+          'badge--orange': document.status === 'archivado',
+          'badge--red': document.status === 'obsoleto'
+        }">
+          {{ statusLabels[document.status] }}
+        </span>
+      </div>
+    </div>
+
+    <div class="document-detail__content">
+      <h3 class="section-title">Contenido</h3>
+      <div class="content-box">
+        <p class="content-text">{{ document.description }}</p>
+      </div>
+    </div>
+
+    <div class="document-detail__versions" *ngIf="document.versions?.length">
+      <h3 class="section-title">Versiones</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Versión</th>
+            <th>Autor</th>
+            <th>Fecha</th>
+            <th>Comentario</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let version of document.versions">
+            <td class="table__cell--version">v{{ version.version }}</td>
+            <td>{{ version.created_by || 'Sistema' }}</td>
+            <td class="table__cell--date">{{ version.created_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ version.change_notes }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="document-detail__approvals" *ngIf="document.approvals?.length">
+      <h3 class="section-title">Aprobaciones</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Revisor</th>
+            <th>Comentarios</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let approval of document.approvals">
+            <td>
+              <span [class]="approvalStatusClasses[approval.status] || 'badge badge--gray'">
+                {{ approvalStatusLabels[approval.status] || approval.status }}
+              </span>
+            </td>
+            <td class="table__cell--date">{{ approval.reviewed_at | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ approval.reviewer_id }}</td>
+            <td>{{ approval.comments }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <ng-template #notFoundTpl>
+    <div class="empty-state">
+      <span class="material-icons empty-state__icon">error_outline</span>
+      <p class="empty-state__text">Documento no encontrado</p>
+      <button class="btn btn--secondary" (click)="goBack()">Volver a la lista</button>
+    </div>
+  </ng-template>
+</div>
+
+<ng-template #loadingTpl>
+  <app-loading-spinner message="Cargando documento..."></app-loading-spinner>
+</ng-template>

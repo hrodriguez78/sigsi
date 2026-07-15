@@ -1,0 +1,101 @@
+<div class="risk-matrix-page">
+  <app-page-header title="Matriz de Riesgos 5×5" [showBackButton]="true" (backClick)="goBack()">
+    <div class="header-actions">
+      <a routerLink="/risks" class="btn btn-secondary">
+        <span class="material-icons">list</span>
+        Ver Lista
+      </a>
+    </div>
+  </app-page-header>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando matriz..."></app-loading-spinner>
+
+  <div class="matrix-wrapper" *ngIf="!loading">
+    <div class="matrix-layout">
+      <div class="y-axis">
+        <span class="axis-title">PROBABILIDAD</span>
+        <div class="axis-labels">
+          <div class="axis-label" *ngFor="let label of probabilityLabels; let i = index">
+            <span class="label-value">{{ 5 - i }}</span>
+            <span class="label-text">{{ label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-grid">
+        <div class="matrix-row" *ngFor="let row of matrixCells">
+          <div
+            class="matrix-cell"
+            *ngFor="let cell of row"
+            [ngClass]="[
+              'matrix-cell--' + cell.level,
+              { 'matrix-cell--selected': selectedCell === cell }
+            ]"
+            (click)="selectCell(cell)"
+          >
+            <span class="cell-score">{{ cell.score }}</span>
+            <span class="cell-count" *ngIf="cell.count > 0">{{ cell.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="x-axis">
+        <span class="axis-title">IMPACTO</span>
+        <div class="axis-labels axis-labels--horizontal">
+          <div class="axis-label axis-label--horizontal" *ngFor="let label of impactLabels; let i = index">
+            <span class="label-text">{{ label }}</span>
+            <span class="label-value">{{ i + 1 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-legend">
+      <div class="legend-item">
+        <span class="legend-color legend-color--bajo"></span>
+        <span>Bajo (1-4)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color legend-color--medio"></span>
+        <span>Medio (5-8)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color legend-color--alto"></span>
+        <span>Alto (9-12)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color legend-color--critico"></span>
+        <span>Crítico (13-25)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="selected-risks" *ngIf="selectedCell">
+    <h3 class="selected-risks__title">
+      Riesgos: Probabilidad {{ selectedCell.probability }} × Impacto {{ selectedCell.impact }}
+      = {{ selectedCell.score }}
+      <span class="badge" [ngClass]="getLevelColor(selectedCell.level)">
+        {{ getLevelLabel(selectedCell.level) }}
+      </span>
+      ({{ selectedCell.count }})
+    </h3>
+
+    <div class="risk-list" *ngIf="selectedCell.risks.length > 0">
+      <div class="risk-item" *ngFor="let risk of selectedCell.risks" (click)="viewRisk(risk)">
+        <div class="risk-item__header">
+          <span class="risk-item__code">{{ risk.code }}</span>
+          <span class="risk-item__name">{{ risk.name }}</span>
+        </div>
+        <div class="risk-item__meta">
+          <span class="badge badge--category">{{ risk.category }}</span>
+          <span class="badge" [ngClass]="getLevelColor(risk.risk_level)">{{ getLevelLabel(risk.risk_level) }}</span>
+          <span class="badge badge--status">{{ getStatusLabel(risk.status) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-risks" *ngIf="selectedCell.risks.length === 0">
+      <p>No hay riesgos en esta celda</p>
+    </div>
+  </div>
+</div>

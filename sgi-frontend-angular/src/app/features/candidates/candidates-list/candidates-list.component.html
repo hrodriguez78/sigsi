@@ -1,0 +1,105 @@
+<div class="candidates-list">
+  <app-page-header title="Candidatos" subtitle="Gestión del pipeline de selección de personal">
+    <button class="btn btn-primary" (click)="showCreateDialog = true">
+      <span class="material-icons">person_add</span>
+      Nuevo Candidato
+    </button>
+  </app-page-header>
+
+  <!-- Pipeline Stats -->
+  <div class="pipeline-stats" *ngIf="stats$ | async as stats">
+    <div class="stat-card stat-total">
+      <span class="stat-number">{{ stats.total }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card stat-new">
+      <span class="stat-number">{{ stats.new }}</span>
+      <span class="stat-label">Nuevos</span>
+    </div>
+    <div class="stat-card stat-review">
+      <span class="stat-number">{{ stats.in_review }}</span>
+      <span class="stat-label">En Revisión</span>
+    </div>
+    <div class="stat-card stat-approved">
+      <span class="stat-number">{{ stats.approved }}</span>
+      <span class="stat-label">Aprobados</span>
+    </div>
+    <div class="stat-card stat-rejected">
+      <span class="stat-number">{{ stats.rejected }}</span>
+      <span class="stat-label">Rechazados</span>
+    </div>
+    <div class="stat-card stat-hired">
+      <span class="stat-number">{{ stats.hired }}</span>
+      <span class="stat-label">Contratados</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input type="text" placeholder="Buscar candidatos..." [(ngModel)]="search" (keyup.enter)="onSearch()" />
+    </div>
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="loading$ | async" message="Cargando candidatos..."></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!(loading$ | async)">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Puesto</th>
+          <th>Estado</th>
+          <th>Score</th>
+          <th>Docs</th>
+          <th>Pruebas</th>
+          <th>Fuente</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of candidates$ | async">
+          <td class="name-cell">
+            <div class="avatar-sm">{{ c.full_name.charAt(0) }}</div>
+            <span>{{ c.full_name }}</span>
+          </td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.position_applied }}</td>
+          <td><span class="badge" [ngClass]="getStatusClass(c.status)">{{ getStatusLabel(c.status) }}</span></td>
+          <td><span class="score-badge" [class.high]="c.score >= 80" [class.mid]="c.score >= 60 && c.score < 80" [class.low]="c.score < 60">{{ c.score || '-' }}</span></td>
+          <td><span class="count-badge">{{ c.documents_count }}</span></td>
+          <td><span class="count-badge">{{ c.tests_completed }}</span></td>
+          <td>{{ getSourceLabel(c.source) }}</td>
+          <td class="actions-cell">
+            <a [routerLink]="[c.id]" class="btn-icon" title="Ver detalle">
+              <span class="material-icons">visibility</span>
+            </a>
+            <button class="btn-icon btn-icon--danger" title="Eliminar" (click)="confirmDelete(c)">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="(candidates$ | async)?.length === 0">
+      <span class="material-icons empty-icon">people</span>
+      <p>No hay candidatos registrados</p>
+    </div>
+
+    <div class="table-footer">
+      <app-pagination [currentPage]="currentPage" [totalItems]="(total$ | async) || 0" [pageSize]="pageSize" (pageChange)="onPageChange($event)"></app-pagination>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog [open]="showDeleteDialog" title="Eliminar Candidato"
+  [message]="'¿Está seguro de eliminar a \'' + (candidateToDelete?.full_name || '') + '\'?'"
+  confirmText="Eliminar" cancelText="Cancelar" type="danger"
+  (confirmed)="onDeleteConfirm()" (cancelled)="onDeleteCancel()">
+</app-confirm-dialog>

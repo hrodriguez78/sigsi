@@ -1,0 +1,73 @@
+<div class="soa">
+  <app-page-header
+    title="Declaración de Aplicabilidad (SoA)"
+    subtitle="Statement of Applicability - ISO 27001:2022"
+  >
+    <button class="btn btn-outline" disabled title="Próximamente">
+      <span class="material-icons">download</span>
+      Exportar
+    </button>
+  </app-page-header>
+
+  <div class="stats-bar">
+    <div class="stat-card">
+      <span class="stat-value">{{ (totalControls$ | async) || 0 }}</span>
+      <span class="stat-label">Total Controles</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ (implementedPct$ | async) || 0 }}%</span>
+      <span class="stat-label">Implementados</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ (compliancePct$ | async) || 0 }}%</span>
+      <span class="stat-label">Cumplimiento Total</span>
+    </div>
+  </div>
+
+  <app-loading-spinner
+    *ngIf="loading$ | async"
+    message="Cargando SoA..."
+  ></app-loading-spinner>
+
+  <div class="category-section" *ngFor="let group of groupedControls$ | async">
+    <div class="category-header">
+      <span class="badge badge-lg" [ngClass]="getCategoryBadgeClass(group.category)">
+        {{ group.categoryLabel }}
+      </span>
+      <span class="category-count">{{ group.controls.length }} controles</span>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Anexo A</th>
+            <th>Cláusula ISO</th>
+            <th>Implementación</th>
+            <th>Cumplimiento</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let control of group.controls">
+            <td class="code-cell">{{ control.control_id }}</td>
+            <td>{{ control.name }}</td>
+            <td>{{ control.annex_a || '-' }}</td>
+            <td>{{ control.iso_clause || '-' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getImplementationClass(control.implementation_status)">
+                {{ getImplementationLabel(control.implementation_status) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getComplianceClass(control.compliance_level)">
+                {{ getComplianceLabel(control.compliance_level) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+import { createAction, props } from '@ngrx/store';
+import { Incident } from '../../core/models';
+export const loadIncidents = createAction('[Incidents] Load', props<{ organizationId: string; page?: number; pageSize?: number; search?: string; severity?: string; status?: string }>());
+export const loadIncidentsSuccess = createAction('[Incidents] Load Success', props<{ incidents: Incident[]; total: number }>());
+export const loadIncidentsFailure = createAction('[Incidents] Load Failure', props<{ error: string }>());
+export const loadIncidentStats = createAction('[Incidents] Load Stats', props<{ organizationId: string }>());
+export const loadIncidentStatsSuccess = createAction('[Incidents] Load Stats Success', props<{ stats: any }>());
+export const createIncident = createAction('[Incidents] Create', props<{ data: Partial<Incident> }>());
+export const createIncidentSuccess = createAction('[Incidents] Create Success', props<{ incident: Incident }>());
+export const createIncidentFailure = createAction('[Incidents] Create Failure', props<{ error: string }>());
+export const updateIncident = createAction('[Incidents] Update', props<{ id: string; data: Partial<Incident> }>());
+export const updateIncidentSuccess = createAction('[Incidents] Update Success', props<{ incident: Incident }>());
+export const updateIncidentFailure = createAction('[Incidents] Update Failure', props<{ error: string }>());
+export const deleteIncident = createAction('[Incidents] Delete', props<{ id: string }>());
+export const deleteIncidentSuccess = createAction('[Incidents] Delete Success', props<{ id: string }>());
+export const addIncidentComment = createAction('[Incidents] Add Comment', props<{ incidentId: string; comment: { text: string; author: string; created_at: string } }>());

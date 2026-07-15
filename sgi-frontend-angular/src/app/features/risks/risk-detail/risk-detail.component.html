@@ -1,0 +1,154 @@
+<div class="risk-detail" *ngIf="risk$ | async as risk">
+  <app-page-header [title]="risk.name" [showBackButton]="true" (backClick)="goBack()">
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="editRisk(risk)">
+        <span class="material-icons">edit</span>
+        Editar
+      </button>
+      <button class="btn btn-danger" (click)="confirmDelete()">
+        <span class="material-icons">delete</span>
+        Eliminar
+      </button>
+    </div>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <div class="card">
+      <h3 class="card__title">Información General</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Código</span>
+          <span class="info-value code">{{ risk.code }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Categoría</span>
+          <span class="badge badge--category">{{ getCategoryLabel(risk.category) }}</span>
+        </div>
+        <div class="info-item full-width">
+          <span class="info-label">Descripción</span>
+          <span class="info-value">{{ risk.description }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fuente</span>
+          <span class="info-value">{{ risk.source }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Consecuencia</span>
+          <span class="info-value">{{ risk.consequence }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Estado</span>
+          <span class="badge badge--status">{{ getStatusLabel(risk.status) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Tratamiento</span>
+          <span class="info-value">{{ getTreatmentLabel(risk.treatment) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card__title">Cálculo de Riesgo</h3>
+      <div class="risk-calc">
+        <div class="risk-formula">
+          <div class="risk-factor" [ngClass]="getScoreColor(risk.probability)">
+            <span class="factor-value">{{ risk.probability }}</span>
+            <span class="factor-label">Probabilidad</span>
+          </div>
+          <span class="risk-operator">×</span>
+          <div class="risk-factor" [ngClass]="getScoreColor(risk.impact)">
+            <span class="factor-value">{{ risk.impact }}</span>
+            <span class="factor-label">Impacto</span>
+          </div>
+          <span class="risk-operator">=</span>
+          <div class="risk-factor risk-factor--result" [ngClass]="getScoreColor(risk.risk_score)">
+            <span class="factor-value">{{ risk.risk_score }}</span>
+            <span class="factor-label">{{ getLevelLabel(risk.risk_level) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card__title">Matriz 5×5</h3>
+      <div class="mini-matrix-container">
+        <div class="mini-matrix">
+          <div class="matrix-corner">
+            <span class="matrix-axis-label">Probabilidad ↑</span>
+            <span class="matrix-axis-label small">Impacto →</span>
+          </div>
+          <div class="matrix-row" *ngFor="let row of matrixCells">
+            <div
+              class="matrix-cell"
+              *ngFor="let cell of row"
+              [ngClass]="[
+                'matrix-cell--' + cell.level,
+                getCellClass(cell.probability, cell.impact, risk)
+              ]"
+            >
+              <span class="cell-value">{{ cell.score }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="matrix-legend">
+          <span class="legend-item"><span class="legend-color legend-color--bajo"></span> Bajo (1-4)</span>
+          <span class="legend-item"><span class="legend-color legend-color--medio"></span> Medio (5-8)</span>
+          <span class="legend-item"><span class="legend-color legend-color--alto"></span> Alto (9-12)</span>
+          <span class="legend-item"><span class="legend-color legend-color--critico"></span> Crítico (13-25)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" *ngIf="risk.treatment_plan">
+      <h3 class="card__title">Plan de Tratamiento</h3>
+      <p class="treatment-plan">{{ risk.treatment_plan }}</p>
+    </div>
+
+    <div class="card">
+      <h3 class="card__title">Flujo de Estado</h3>
+      <div class="status-workflow">
+        <div
+          class="workflow-step"
+          *ngFor="let step of getStatusSteps()"
+          [class.active]="isStatusActive(risk.status, step)"
+          [class.current]="step === risk.status"
+        >
+          <div class="step-dot"></div>
+          <span class="step-label">{{ getStatusLabel(step) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card__title">Metadatos</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Creado</span>
+          <span class="info-value">{{ risk.created_at | date:'medium' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Actualizado</span>
+          <span class="info-value">{{ risk.updated_at | date:'medium' }}</span>
+        </div>
+        <div class="info-item" *ngIf="risk.tags?.length">
+          <span class="info-label">Etiquetas</span>
+          <div class="tags">
+            <span class="tag" *ngFor="let tag of risk.tags">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-loading-spinner *ngIf="loading$ | async" message="Cargando riesgo..."></app-loading-spinner>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Riesgo"
+  message="¿Está seguro de eliminar este riesgo? Esta acción no se puede deshacer."
+  confirmText="Eliminar"
+  type="danger"
+  (confirmed)="onConfirmDelete()"
+  (cancelled)="cancelDelete()"
+></app-confirm-dialog>

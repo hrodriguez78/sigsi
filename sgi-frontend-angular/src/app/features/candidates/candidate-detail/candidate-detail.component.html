@@ -1,0 +1,217 @@
+<div class="candidate-detail" *ngIf="candidate$ | async as candidate">
+  <app-page-header [title]="candidate.full_name" [subtitle]="candidate.position_applied">
+    <button class="btn btn-secondary" routerLink="/candidates">
+      <span class="material-icons">arrow_back</span> Volver
+    </button>
+    <button class="btn btn-primary" (click)="showStatusDialog = true">
+      <span class="material-icons">edit</span> Actualizar Estado
+    </button>
+  </app-page-header>
+
+  <!-- Header Info -->
+  <div class="detail-header">
+    <div class="avatar-lg">{{ candidate.full_name.charAt(0) }}</div>
+    <div class="header-info">
+      <h2>{{ candidate.full_name }}</h2>
+      <p class="email">{{ candidate.email }} · {{ candidate.phone || 'Sin teléfono' }}</p>
+      <div class="header-badges">
+        <span class="badge" [ngClass]="getStatusClass(candidate.status)">{{ getStatusLabel(candidate.status) }}</span>
+        <span class="score-pill" *ngIf="candidate.score">Score: {{ candidate.score }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+      <span class="material-icons">info</span> Resumen
+    </button>
+    <button class="tab" [class.active]="activeTab === 'documents'" (click)="setTab('documents')">
+      <span class="material-icons">folder</span> Documentos
+    </button>
+    <button class="tab" [class.active]="activeTab === 'tests'" (click)="setTab('tests')">
+      <span class="material-icons">quiz</span> Pruebas
+    </button>
+    <button class="tab" [class.active]="activeTab === 'timeline'" (click)="setTab('timeline')">
+      <span class="material-icons">timeline</span> Trazabilidad
+    </button>
+  </div>
+
+  <!-- Tab: Overview -->
+  <div class="tab-content" *ngIf="activeTab === 'overview'">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Información del Candidato</h3>
+        <div class="info-row"><span class="label">Puesto aplicado:</span><span>{{ candidate.position_applied }}</span></div>
+        <div class="info-row"><span class="label">Fuente:</span><span>{{ candidate.source || '-' }}</span></div>
+        <div class="info-row"><span class="label">Fecha de registro:</span><span>{{ candidate.created_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
+        <div class="info-row"><span class="label">Última actualización:</span><span>{{ candidate.updated_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
+      </div>
+      <div class="info-card">
+        <h3>Carta de Presentación</h3>
+        <p class="cover-letter">{{ candidate.cover_letter || 'Sin carta de presentación' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Documents -->
+  <div class="tab-content" *ngIf="activeTab === 'documents'">
+    <div class="section-header">
+      <h3>Documentos del Candidato</h3>
+      <button class="btn btn-primary btn-sm" (click)="showAddDocDialog = true">
+        <span class="material-icons">upload_file</span> Adjuntar Documento
+      </button>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-card" *ngFor="let doc of documents$ | async">
+        <div class="doc-icon">
+          <span class="material-icons">{{ doc.document_type === 'foto' ? 'photo' : 'description' }}</span>
+        </div>
+        <div class="doc-info">
+          <span class="doc-name">{{ doc.file_name }}</span>
+          <span class="doc-type">{{ getDocTypeLabel(doc.document_type) }}</span>
+          <span class="doc-date">{{ doc.created_at | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="doc-status">
+          <span class="verified" *ngIf="doc.verified"><span class="material-icons">verified</span> Verificado</span>
+          <button class="btn btn-sm btn-outline" *ngIf="!doc.verified" (click)="verifyDocument(doc.id)">
+            <span class="material-icons">check_circle</span> Verificar
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="(documents$ | async)?.length === 0">
+      <span class="material-icons empty-icon">folder_off</span>
+      <p>No hay documentos adjuntos</p>
+    </div>
+  </div>
+
+  <!-- Tab: Tests -->
+  <div class="tab-content" *ngIf="activeTab === 'tests'">
+    <div class="section-header">
+      <h3>Pruebas y Evaluaciones</h3>
+      <button class="btn btn-primary btn-sm" (click)="showAddTestDialog = true">
+        <span class="material-icons">add_task</span> Agregar Prueba
+      </button>
+    </div>
+    <div class="test-grid">
+      <div class="test-card" *ngFor="let test of tests$ | async">
+        <div class="test-header">
+          <span class="test-type-badge">{{ getTestTypeLabel(test.test_type) }}</span>
+          <span class="test-status" [class.completed]="test.status === 'completado'">
+            {{ test.status === 'completado' ? 'Completada' : test.status === 'en_curso' ? 'En Curso' : 'Pendiente' }}
+          </span>
+        </div>
+        <h4>{{ test.test_name }}</h4>
+        <div class="test-meta">
+          <span>Duración: {{ test.duration_minutes }} min</span>
+          <span>Puntaje máximo: {{ test.max_score }}</span>
+        </div>
+        <div class="test-score" *ngIf="test.score !== null">
+          <span class="score-value" [class.pass]="test.score >= test.max_score * 0.6">{{ test.score }}</span>
+          <span class="score-total">/ {{ test.max_score }}</span>
+        </div>
+        <div class="test-actions" *ngIf="test.status !== 'completado'">
+          <input type="number" placeholder="Puntaje" class="score-input" #scoreInput />
+          <button class="btn btn-sm btn-primary" (click)="updateTestScore(test.id, scoreInput.valueAsNumber)">
+            Registrar Resultado
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="(tests$ | async)?.length === 0">
+      <span class="material-icons empty-icon">quiz</span>
+      <p>No hay pruebas registradas</p>
+    </div>
+  </div>
+
+  <!-- Tab: Timeline -->
+  <div class="tab-content" *ngIf="activeTab === 'timeline'">
+    <div class="section-header">
+      <h3>Trazabilidad de Actividades</h3>
+      <button class="btn btn-primary btn-sm" (click)="showAddActivityDialog = true">
+        <span class="material-icons">add_circle</span> Registrar Actividad
+      </button>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item" *ngFor="let act of activities$ | async">
+        <div class="timeline-icon">
+          <span class="material-icons">{{ getActivityIcon(act.activity_type) }}</span>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-header">
+            <span class="timeline-type">{{ act.activity_type | titlecase }}</span>
+            <span class="timeline-date">{{ act.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <p>{{ act.description }}</p>
+          <span class="timeline-author" *ngIf="act.performed_by">Por: {{ act.performed_by }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="(activities$ | async)?.length === 0">
+      <span class="material-icons empty-icon">timeline</span>
+      <p>No hay actividades registradas</p>
+    </div>
+  </div>
+</div>
+
+<!-- Dialogs -->
+<div class="modal-overlay" *ngIf="showAddDocDialog" (click)="showAddDocDialog = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Adjuntar Documento</h3>
+    <select [(ngModel)]="newDoc.document_type" class="form-input">
+      <option *ngFor="let dt of docTypes" [value]="dt.value">{{ dt.label }}</option>
+    </select>
+    <input class="form-input" placeholder="Nombre del archivo" [(ngModel)]="newDoc.file_name" />
+    <textarea class="form-input" placeholder="Notas (opcional)" [(ngModel)]="newDoc.notes"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showAddDocDialog = false">Cancelar</button>
+      <button class="btn btn-primary" (click)="addDocument()">Adjuntar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showAddTestDialog" (click)="showAddTestDialog = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Agregar Prueba</h3>
+    <select [(ngModel)]="newTest.test_type" class="form-input">
+      <option *ngFor="let tt of testTypes" [value]="tt.value">{{ tt.label }}</option>
+    </select>
+    <input class="form-input" placeholder="Nombre de la prueba" [(ngModel)]="newTest.test_name" />
+    <input class="form-input" type="number" placeholder="Puntaje máximo" [(ngModel)]="newTest.max_score" />
+    <input class="form-input" type="number" placeholder="Duración (minutos)" [(ngModel)]="newTest.duration_minutes" />
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showAddTestDialog = false">Cancelar</button>
+      <button class="btn btn-primary" (click)="addTest()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showAddActivityDialog" (click)="showAddActivityDialog = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Registrar Actividad</h3>
+    <select [(ngModel)]="newActivity.activity_type" class="form-input">
+      <option *ngFor="let at of activityTypes" [value]="at.value">{{ at.label }}</option>
+    </select>
+    <textarea class="form-input" placeholder="Descripción de la actividad" [(ngModel)]="newActivity.description"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showAddActivityDialog = false">Cancelar</button>
+      <button class="btn btn-primary" (click)="addActivity()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showStatusDialog" (click)="showStatusDialog = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Actualizar Estado del Candidato</h3>
+    <select [(ngModel)]="newStatus" class="form-input">
+      <option value="">-- Seleccionar estado --</option>
+      <option *ngFor="let s of allStatuses" [value]="s.value">{{ s.label }}</option>
+    </select>
+    <input class="form-input" type="number" placeholder="Score (opcional)" [(ngModel)]="newScore" />
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showStatusDialog = false">Cancelar</button>
+      <button class="btn btn-primary" (click)="updateStatus()">Actualizar</button>
+    </div>
+  </div>
+</div>

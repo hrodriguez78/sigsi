@@ -1,0 +1,103 @@
+<div class="control-detail" *ngIf="control$ | async as control">
+  <app-page-header
+    [title]="control.control_id"
+    [subtitle]="control.name"
+    [showBackButton]="true"
+    (backClick)="router.navigate(['/controls'])"
+  >
+    <a [routerLink]="['/controls', control.id, 'edit']" class="btn btn-primary">
+      <span class="material-icons">edit</span>
+      Editar
+    </a>
+    <button class="btn btn-danger" (click)="confirmDelete()">
+      <span class="material-icons">delete</span>
+      Eliminar
+    </button>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <div class="card info-card">
+      <h3 class="card-title">Información del Control</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">ID Control</span>
+          <span class="info-value mono">{{ control.control_id }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Nombre</span>
+          <span class="info-value">{{ control.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Categoría</span>
+          <span class="badge" [ngClass]="getCategoryBadgeClass(control.category)">
+            {{ getCategoryLabel(control.category) }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Anexo A</span>
+          <span class="info-value">{{ control.annex_a || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Cláusula ISO</span>
+          <span class="info-value">{{ control.iso_clause || '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card status-card">
+      <h3 class="card-title">Estado</h3>
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="info-label">Estado de Implementación</span>
+          <span class="badge badge-lg" [ngClass]="getImplementationClass(control.implementation_status)">
+            {{ getImplementationLabel(control.implementation_status) }}
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="info-label">Nivel de Cumplimiento</span>
+          <span class="badge badge-lg" [ngClass]="getComplianceClass(control.compliance_level)">
+            {{ getComplianceLabel(control.compliance_level) }}
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="info-label">Evidencias</span>
+          <span class="info-value evidence-count">{{ control.evidence_count }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card description-card">
+    <h3 class="card-title">Descripción</h3>
+    <p class="description-text">{{ control.description || 'Sin descripción' }}</p>
+  </div>
+
+  <div class="card" *ngIf="control.evidence_description">
+    <h3 class="card-title">Descripción de Evidencias</h3>
+    <p class="description-text">{{ control.evidence_description }}</p>
+  </div>
+
+  <div class="card notes-card">
+    <div class="notes-header">
+      <h3 class="card-title">Notas</h3>
+    </div>
+    <p class="description-text" *ngIf="control.notes">{{ control.notes }}</p>
+    <p class="no-notes" *ngIf="!control.notes">No hay notas registradas</p>
+  </div>
+</div>
+
+<app-loading-spinner
+  *ngIf="!(control$ | async)"
+  message="Cargando control..."
+></app-loading-spinner>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Control"
+  message="¿Está seguro de eliminar este control? Esta acción no se puede deshacer."
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

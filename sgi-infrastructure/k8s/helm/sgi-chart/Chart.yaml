@@ -1,0 +1,14 @@
+apiVersion: v2
+name: sgi
+description: SGSI ISO 27001 Platform Helm Chart
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - sgi
+  - iso27001
+  - isms
+  - security
+maintainers:
+  - name: SGI Team
+    email: admin@sgi.local

@@ -1,0 +1,162 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/sgi
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        cd sgi-backend-fastapi
+        pip install -r requirements.txt
+        pip install ruff mypy
+    - name: Ruff lint
+      run: cd sgi-backend-fastapi && ruff check app/
+    - name: Ruff format check
+      run: cd sgi-backend-fastapi && ruff format --check app/
+    - name: Mypy type check
+      run: cd sgi-backend-fastapi && mypy app/ --ignore-missing-imports || true
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    needs: lint-backend
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+        - 27017:27017
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        cd sgi-backend-fastapi
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio httpx ruff
+    - name: Run tests
+      run: |
+        cd sgi-backend-fastapi
+        python -m pytest tests/ -v --tb=short -x
+      env:
+        MONGO_HOST: mongodb://localhost:27017
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-test-results
+        path: sgi-backend-fastapi/tests/
+
+  build-backend:
+    name: Build Backend Image
+    runs-on: ubuntu-latest
+    needs: test-backend
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Build backend
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }} sgi-backend-fastapi/
+    - name: Save image
+      run: |
+        docker save ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }} | gzip > backend-image.tar.gz
+    - uses: actions/upload-artifact@v4
+      with:
+        name: backend-image
+        path: backend-image.tar.gz
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: sgi-frontend-angular/package-lock.json
+    - name: Install dependencies
+      run: cd sgi-frontend-angular && npm ci --legacy-peer-deps
+    - name: Lint
+      run: cd sgi-frontend-angular && npx ng lint || true
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: lint-frontend
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: sgi-frontend-angular/package-lock.json
+    - name: Install dependencies
+      run: cd sgi-frontend-angular && npm ci --legacy-peer-deps
+    - name: Build
+      run: cd sgi-frontend-angular && npx ng build --configuration production
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ github.sha }} sgi-frontend-angular/
+    - name: Save image
+      run: |
+        docker save ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ github.sha }} | gzip > nginx-image.tar.gz
+    - uses: actions/upload-artifact@v4
+      with:
+        name: nginx-image
+        path: nginx-image.tar.gz
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download images
+      uses: actions/download-artifact@v4
+    - name: Load images
+      run: |
+        docker load < backend-image/backend-image.tar.gz
+        docker load < nginx-image/nginx-image.tar.gz
+    - name: Deploy to staging
+      run: |
+        echo "Deploy to staging environment"
+        # kubectl apply -f sgi-infrastructure/k8s/manifests/ --namespace=sgi-staging
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download images
+      uses: actions/download-artifact@v4
+    - name: Load images
+      run: |
+        docker load < backend-image/backend-image.tar.gz
+        docker load < nginx-image/nginx-image.tar.gz
+    - name: Deploy to production
+      run: |
+        echo "Deploy to production environment"
+        # kubectl apply -f sgi-infrastructure/k8s/manifests/ --namespace=sgi

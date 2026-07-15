@@ -1,0 +1,63 @@
+<div class="raci-list-page">
+  <app-page-header title="Matrices RACI" subtitle="Matrices de responsabilidades por proceso y rol">
+    <button class="btn btn-primary" (click)="createMatrix()">
+      <span class="material-icons">add</span>
+      Nueva Matriz
+    </button>
+  </app-page-header>
+
+  <div class="list-toolbar">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" [ngModel]="searchText" (ngModelChange)="onSearch($event)"
+             placeholder="Buscar matrices..." />
+    </div>
+  </div>
+
+  <div class="raci-cards" *ngIf="matrices.length > 0">
+    <div class="raci-card" *ngFor="let m of matrices">
+      <div class="card-header">
+        <h3 (click)="viewMatrix(m.id)" class="clickable">{{ m.name }}</h3>
+        <span class="card-count">{{ m.role_names.length }} roles · {{ m.process_ids.length }} procesos</span>
+      </div>
+      <p class="card-desc">{{ m.description || 'Sin descripción' }}</p>
+      <div class="card-roles">
+        <span class="role-tag" *ngFor="let role of m.role_names">{{ role }}</span>
+      </div>
+      <div class="card-footer">
+        <span class="card-date">{{ m.created_at | date:'dd/MM/yyyy' }}</span>
+        <div class="card-actions">
+          <button class="btn btn-sm btn-outline" (click)="viewMatrix(m.id)" title="Ver matriz">
+            <span class="material-icons">grid_view</span>
+          </button>
+          <button class="btn btn-sm btn-outline" (click)="editMatrix(m.id)" title="Editar">
+            <span class="material-icons">edit</span>
+          </button>
+          <button class="btn btn-sm btn-danger-outline" (click)="deleteMatrix(m.id)" title="Eliminar">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && matrices.length === 0">
+    <span class="material-icons empty-icon">grid_view</span>
+    <h3>No hay matrices RACI</h3>
+    <p>Crea una matriz para definir responsabilidades por proceso y rol</p>
+    <button class="btn btn-primary" (click)="createMatrix()">
+      <span class="material-icons">add</span>
+      Crear primera matriz
+    </button>
+  </div>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando matrices..."></app-loading-spinner>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalItems]="total"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+    *ngIf="total > pageSize"
+  ></app-pagination>
+</div>

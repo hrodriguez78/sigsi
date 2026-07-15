@@ -1,0 +1,73 @@
+.organizations {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.table-container {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  th {
+    background-color: var(--bg-muted);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  tbody tr:hover {
+    background-color: var(--bg-hover);
+  }
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--danger);
+  color: white;
+
+  &.active {
+    background-color: var(--success);
+  }
+}
+
+.btn-icon {
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: var(--bg-hover);
+    color: var(--primary-color);
+  }
+}

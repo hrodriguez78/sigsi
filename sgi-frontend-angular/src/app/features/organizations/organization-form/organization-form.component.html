@@ -1,0 +1,51 @@
+<div class="organization-form">
+  <h1>{{ isEditMode ? 'Editar' : 'Nueva' }} Organización</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input type="text" id="name" formControlName="name" />
+      </div>
+
+      <div class="form-group">
+        <label for="nit">NIT *</label>
+        <input type="text" id="nit" formControlName="nit" />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Descripción</label>
+        <textarea id="description" formControlName="description" rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Dirección</label>
+        <input type="text" id="address" formControlName="address" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Teléfono</label>
+        <input type="tel" id="phone" formControlName="phone" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="website">Sitio Web</label>
+        <input type="url" id="website" formControlName="website" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" routerLink="/organizations">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary">
+        {{ isEditMode ? 'Actualizar' : 'Crear' }}
+      </button>
+    </div>
+  </form>
+</div>

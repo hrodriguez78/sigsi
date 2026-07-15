@@ -1,0 +1,90 @@
+.training-form {
+  max-width: 800px;
+
+  h1 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  &.full-width {
+    grid-column: 1 / -1;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+.checkbox-group {
+  label {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+
+    input { width: auto; }
+  }
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  &.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+
+    &:disabled { background: #ccc; cursor: not-allowed; }
+  }
+
+  &.btn-outline {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+}

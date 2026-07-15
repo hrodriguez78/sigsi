@@ -1,0 +1,76 @@
+<div class="inspections-list">
+  <app-page-header title="Inspecciones" subtitle="Inspecciones de calidad, seguridad y cumplimiento">
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span> Nueva Inspección
+    </a>
+  </app-page-header>
+
+  <div class="pipeline-stats" *ngIf="stats">
+    <div class="stat-card stat-total"><span class="stat-number">{{ stats.total }}</span><span class="stat-label">Total</span></div>
+    <div class="stat-card stat-new"><span class="stat-number">{{ stats.scheduled }}</span><span class="stat-label">Programadas</span></div>
+    <div class="stat-card stat-review"><span class="stat-number">{{ stats.in_progress }}</span><span class="stat-label">En Curso</span></div>
+    <div class="stat-card stat-hired"><span class="stat-number">{{ stats.passed }}</span><span class="stat-label">Aprobadas</span></div>
+    <div class="stat-card stat-rejected"><span class="stat-number">{{ stats.failed }}</span><span class="stat-label">No Aprobadas</span></div>
+    <div class="stat-card stat-approved"><span class="stat-number">{{ stats.compliance_rate }}%</span><span class="stat-label">Cumplimiento</span></div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input type="text" placeholder="Buscar inspecciones..." [(ngModel)]="search" (keyup.enter)="onSearch()" />
+    </div>
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+    <select class="filter-select" [(ngModel)]="filterType" (change)="onFilterChange()">
+      <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+    <select class="filter-select" [(ngModel)]="filterResult" (change)="onFilterChange()">
+      <option *ngFor="let opt of resultOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando inspecciones..."></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Título</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Resultado</th>
+          <th>Inspector</th>
+          <th>Ubicación</th>
+          <th>Score</th>
+          <th>Checklist</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let insp of inspections">
+          <td class="code-cell">{{ insp.inspection_number }}</td>
+          <td>{{ insp.title }}</td>
+          <td><span class="badge badge-info">{{ getTypeLabel(insp.inspection_type) }}</span></td>
+          <td><span class="badge" [ngClass]="getStatusClass(insp.status)">{{ getStatusLabel(insp.status) }}</span></td>
+          <td><span class="badge" [ngClass]="getResultClass(insp.result)">{{ getResultLabel(insp.result) }}</span></td>
+          <td>{{ insp.inspector_name }}</td>
+          <td>{{ insp.location || '-' }}</td>
+          <td><span *ngIf="insp.score !== null" class="score-badge" [class.high]="insp.score >= 80" [class.mid]="insp.score >= 60 && insp.score < 80" [class.low]="insp.score < 60">{{ insp.score }}</span><span *ngIf="insp.score === null">-</span></td>
+          <td><span class="count-badge">{{ insp.checklist?.length || 0 }}</span></td>
+          <td class="actions-cell">
+            <a [routerLink]="[insp.id]" class="btn-icon" title="Ver detalle"><span class="material-icons">visibility</span></a>
+            <a [routerLink]="[insp.id, 'edit']" class="btn-icon" title="Editar"><span class="material-icons">edit</span></a>
+            <button class="btn-icon btn-danger" title="Eliminar" (click)="deleteInspection(insp)"><span class="material-icons">delete</span></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="inspections.length === 0">
+      <span class="material-icons empty-icon">fact_check</span>
+      <p>No hay inspecciones registradas</p>
+    </div>
+    <app-pagination *ngIf="total > pageSize" [totalItems]="total" [currentPage]="currentPage" [pageSize]="pageSize" (pageChange)="onPageChange($event)"></app-pagination>
+  </div>
+</div>

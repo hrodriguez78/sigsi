@@ -1,0 +1,131 @@
+.training-detail {
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+
+    h1 { margin: 0; color: var(--text-primary); }
+    .subtitle { margin: 0.25rem 0 0; color: var(--text-secondary); }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px var(--shadow-sm);
+  margin-bottom: 1.5rem;
+
+  h3 {
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+}
+
+.field {
+  margin-bottom: 0.75rem;
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+
+  p { margin: 0; color: var(--text-primary); }
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &.badge-borrador { background: #6c757d; color: white; }
+  &.badge-publicado { background: var(--success); color: white; }
+  &.badge-en_curso { background: var(--info); color: white; }
+  &.badge-completado { background: #17a2b8; color: white; }
+  &.badge-archivado { background: var(--warning); color: white; }
+  &.badge-inscrito { background: var(--info); color: white; }
+  &.badge-reprobado { background: var(--danger); color: white; }
+  &.badge-cancelado { background: #6c757d; color: white; }
+}
+
+.tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: var(--bg-tertiary);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.content-outline {
+  white-space: pre-wrap;
+  font-family: inherit;
+  background: var(--bg-muted);
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.875rem;
+  }
+
+  th {
+    background: var(--bg-muted);
+    font-weight: 600;
+  }
+}
+
+.empty-text {
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: none;
+
+  &.btn-primary { background: var(--primary-color); color: white; border: none; }
+  &.btn-outline { background: var(--bg-surface); border: 1px solid var(--border-color); color: var(--text-primary); }
+  &.btn-danger { background: var(--danger); color: white; border: none; }
+}

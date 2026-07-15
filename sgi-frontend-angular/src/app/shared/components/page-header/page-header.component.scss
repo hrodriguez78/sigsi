@@ -1,0 +1,50 @@
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    color: #64748b;
+  }
+
+  &__right {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #e2e8f0;
+  }
+}

@@ -1,0 +1,153 @@
+<div class="controls-list">
+  <app-page-header
+    title="Controles ISO 27001:2022"
+    subtitle="Gestión de controles del anexo A"
+  >
+    <button class="btn btn-outline" (click)="exportData()">
+      <span class="material-icons">download</span> Exportar Excel
+    </button>
+    <a routerLink="soa" class="btn btn-outline">
+      <span class="material-icons">description</span>
+      Ver SoA
+    </a>
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nuevo Control
+    </a>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Buscar por ID, nombre o descripción..."
+        [(ngModel)]="search"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filterCategory"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of categoryOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filterImplementation"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of implementationOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filterCompliance"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of complianceOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+  </div>
+
+  <app-loading-spinner
+    *ngIf="loading$ | async"
+    message="Cargando controles..."
+  ></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!(loading$ | async)">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID Control</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Anexo A</th>
+          <th>Implementación</th>
+          <th>Cumplimiento</th>
+          <th>Evidencias</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let control of controls$ | async">
+          <td class="code-cell">{{ control.control_id }}</td>
+          <td>{{ control.name }}</td>
+          <td>
+            <span class="badge" [ngClass]="getCategoryBadgeClass(control.category)">
+              {{ getCategoryLabel(control.category) }}
+            </span>
+          </td>
+          <td>{{ control.annex_a || '-' }}</td>
+          <td>
+            <span class="badge" [ngClass]="getImplementationClass(control.implementation_status)">
+              {{ getImplementationLabel(control.implementation_status) }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getComplianceClass(control.compliance_level)">
+              {{ getComplianceLabel(control.compliance_level) }}
+            </span>
+          </td>
+          <td class="evidence-cell">{{ control.evidence_count }}</td>
+          <td class="actions-cell">
+            <a
+              [routerLink]="[control.id]"
+              class="btn-icon"
+              title="Ver detalle"
+            >
+              <span class="material-icons">visibility</span>
+            </a>
+            <a
+              [routerLink]="[control.id, 'edit']"
+              class="btn-icon"
+              title="Editar"
+            >
+              <span class="material-icons">edit</span>
+            </a>
+            <button
+              class="btn-icon btn-icon--danger"
+              title="Eliminar"
+              (click)="confirmDelete(control)"
+            >
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="(controls$ | async)?.length === 0">
+      <span class="material-icons empty-icon">security</span>
+      <p>No se encontraron controles</p>
+    </div>
+
+    <div class="table-footer">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalItems]="(total$ | async) || 0"
+        [pageSize]="pageSize"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Control"
+  [message]="'¿Está seguro de eliminar el control \'' + (controlToDelete?.control_id || '') + '\'?'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

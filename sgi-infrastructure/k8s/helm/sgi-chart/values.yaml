@@ -1,0 +1,124 @@
+# SGI Helm Chart Values
+
+global:
+  namespace: sgi
+  imagePullPolicy: IfNotPresent
+
+mongodb:
+  enabled: true
+  image: mongo:7
+  port: 27017
+  storage: 10Gi
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 2Gi
+      cpu: 1000m
+
+postgresql:
+  enabled: true
+  image: postgres:15-alpine
+  port: 5432
+  database: sgi_django
+  user: sgi_user
+  storage: 5Gi
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 250m
+
+fastapi:
+  enabled: true
+  replicaCount: 2
+  image: sgi-backend
+  tag: latest
+  port: 8000
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 1000m
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+django:
+  enabled: true
+  replicaCount: 2
+  image: sgi-django
+  tag: latest
+  port: 8001
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 200m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+nginx:
+  enabled: true
+  replicaCount: 2
+  image: sgi-nginx
+  tag: latest
+  port: 80
+  service:
+    type: LoadBalancer
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+
+ollama:
+  enabled: true
+  image: ollama/ollama
+  tag: latest
+  port: 11434
+  storage: 20Gi
+  gpu:
+    enabled: false
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 2000m
+
+ingress:
+  enabled: true
+  className: nginx
+  hostname: sgi.example.com
+  tls: true
+  certManager:
+    clusterIssuer: letsencrypt-prod
+
+secrets:
+  jwtSecret: "change-me-in-production"
+  mongoPassword: "change-me"
+  postgresPassword: "change-me"
+  djangoSecretKey: "change-me"

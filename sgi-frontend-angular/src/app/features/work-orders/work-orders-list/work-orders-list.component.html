@@ -1,0 +1,100 @@
+<div class="work-orders-list">
+  <app-page-header title="Órdenes de Trabajo" subtitle="Gestión de órdenes de mantenimiento y servicios de aseo">
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span> Nueva Orden
+    </a>
+  </app-page-header>
+
+  <!-- Stats -->
+  <div class="pipeline-stats" *ngIf="stats">
+    <div class="stat-card stat-total">
+      <span class="stat-number">{{ stats.total }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card stat-new">
+      <span class="stat-number">{{ stats.pending }}</span>
+      <span class="stat-label">Pendientes</span>
+    </div>
+    <div class="stat-card stat-review">
+      <span class="stat-number">{{ stats.scheduled }}</span>
+      <span class="stat-label">Programadas</span>
+    </div>
+    <div class="stat-card stat-approved">
+      <span class="stat-number">{{ stats.in_progress }}</span>
+      <span class="stat-label">En Progreso</span>
+    </div>
+    <div class="stat-card stat-hired">
+      <span class="stat-number">{{ stats.completed }}</span>
+      <span class="stat-label">Completadas</span>
+    </div>
+    <div class="stat-card stat-rejected">
+      <span class="stat-number">{{ stats.cancelled }}</span>
+      <span class="stat-label">Canceladas</span>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input type="text" placeholder="Buscar órdenes..." [(ngModel)]="search" (keyup.enter)="onSearch()" />
+    </div>
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+    <select class="filter-select" [(ngModel)]="filterPriority" (change)="onFilterChange()">
+      <option *ngFor="let opt of priorityOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+    <select class="filter-select" [(ngModel)]="filterType" (change)="onFilterChange()">
+      <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando órdenes de trabajo..."></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Título</th>
+          <th>Tipo</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Asignado a</th>
+          <th>Ubicación</th>
+          <th>Programada</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let wo of workOrders">
+          <td class="code-cell">{{ wo.order_number }}</td>
+          <td>{{ wo.title }}</td>
+          <td><span class="badge badge-info">{{ getTypeLabel(wo.order_type) }}</span></td>
+          <td><span class="badge" [ngClass]="getPriorityClass(wo.priority)">{{ getPriorityLabel(wo.priority) }}</span></td>
+          <td><span class="badge" [ngClass]="getStatusClass(wo.status)">{{ getStatusLabel(wo.status) }}</span></td>
+          <td>{{ wo.assigned_to_name || '-' }}</td>
+          <td>{{ wo.location || '-' }}</td>
+          <td>{{ wo.scheduled_date | date:'dd/MM/yyyy' }}</td>
+          <td class="actions-cell">
+            <a [routerLink]="[wo.id]" class="btn-icon" title="Ver detalle">
+              <span class="material-icons">visibility</span>
+            </a>
+            <a [routerLink]="[wo.id, 'edit']" class="btn-icon" title="Editar">
+              <span class="material-icons">edit</span>
+            </a>
+            <button class="btn-icon btn-danger" title="Eliminar" (click)="deleteWorkOrder(wo)">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty-state" *ngIf="workOrders.length === 0">
+      <span class="material-icons empty-icon">assignment</span>
+      <p>No hay órdenes de trabajo registradas</p>
+    </div>
+    <app-pagination *ngIf="total > pageSize" [totalItems]="total" [currentPage]="currentPage" [pageSize]="pageSize" (pageChange)="onPageChange($event)"></app-pagination>
+  </div>
+</div>

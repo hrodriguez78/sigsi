@@ -1,0 +1,120 @@
+<div class="documents-list">
+  <div class="documents-list__header">
+    <h1 class="documents-list__title">Documentos</h1>
+    <button class="btn btn-outline" (click)="exportData()">
+      <span class="material-icons">download</span> Exportar Excel
+    </button>
+    <a routerLink="/documents/new" class="btn btn--primary">
+      <span class="material-icons">add</span>
+      Nuevo Documento
+    </a>
+  </div>
+
+  <div class="documents-list__filters">
+    <div class="filter-group">
+      <label class="filter-label">Buscar</label>
+      <input
+        type="text"
+        class="filter-input"
+        placeholder="Título o código..."
+        [(ngModel)]="search"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Tipo</label>
+      <select class="filter-select" [(ngModel)]="filterType" (change)="onFilterChange()">
+        <option *ngFor="let type of documentTypes" [value]="type.value">
+          {{ type.label }}
+        </option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">Estado</label>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+        <option *ngFor="let status of statusOptions" [value]="status.value">
+          {{ status.label }}
+        </option>
+      </select>
+    </div>
+    <button class="btn btn--secondary filter-search-btn" (click)="onSearch()">
+      <span class="material-icons">search</span>
+      Buscar
+    </button>
+  </div>
+
+  <div class="documents-list__table-wrapper" *ngIf="!loading; else loadingTpl">
+    <table class="table" *ngIf="documents.length > 0; else emptyTpl">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Título</th>
+          <th>Tipo</th>
+          <th>Versión</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let doc of documents" class="table__row">
+          <td class="table__cell table__cell--code">{{ doc.code }}</td>
+          <td class="table__cell table__cell--title">
+            <span class="doc-title" (click)="viewDocument(doc)">{{ doc.title }}</span>
+          </td>
+          <td class="table__cell">
+            <span [class]="getTypeClass(doc.document_type)">{{ getTypeLabel(doc.document_type) }}</span>
+          </td>
+          <td class="table__cell table__cell--version">v{{ doc.current_version }}</td>
+          <td class="table__cell">
+            <span [class]="getStatusClass(doc.status)">{{ getStatusLabel(doc.status) }}</span>
+          </td>
+          <td class="table__cell table__cell--date">{{ doc.created_at | date: 'dd/MM/yyyy' }}</td>
+          <td class="table__cell table__cell--actions">
+            <button class="action-btn action-btn--view" title="Ver" (click)="viewDocument(doc)">
+              <span class="material-icons">visibility</span>
+            </button>
+            <button class="action-btn action-btn--edit" title="Editar" (click)="editDocument(doc)">
+              <span class="material-icons">edit</span>
+            </button>
+            <button
+              class="action-btn action-btn--publish"
+              title="Publicar"
+              *ngIf="doc.status === 'aprobado'"
+              (click)="publishDoc(doc)"
+            >
+              <span class="material-icons">publish</span>
+            </button>
+            <button
+              class="action-btn action-btn--archive"
+              title="Archivar"
+              *ngIf="doc.status === 'publicado'"
+              (click)="archiveDoc(doc)"
+            >
+              <span class="material-icons">archive</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #emptyTpl>
+      <div class="empty-state">
+        <span class="material-icons empty-state__icon">description</span>
+        <p class="empty-state__text">No se encontraron documentos</p>
+      </div>
+    </ng-template>
+
+    <app-pagination
+      *ngIf="total > pageSize"
+      [currentPage]="currentPage"
+      [totalItems]="total"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)"
+    ></app-pagination>
+  </div>
+
+  <ng-template #loadingTpl>
+    <app-loading-spinner message="Cargando documentos..."></app-loading-spinner>
+  </ng-template>
+</div>

@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'sgi-fastapi'
+    static_configs:
+      - targets: ['sgi-fastapi:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'sgi-django'
+    static_configs:
+      - targets: ['sgi-django:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['sgi-nginx:80']
+    metrics_path: '/nginx_status'
+    scrape_interval: 15s
+
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['sgi-mongodb:27017']
+    scrape_interval: 30s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['sgi-redis:6379']
+    scrape_interval: 30s
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

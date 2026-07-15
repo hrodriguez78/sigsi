@@ -1,0 +1,39 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ user ? 'Editar Usuario' : 'Crear Usuario' }}</h3>
+
+    <form (ngSubmit)="save()">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="full_name" name="full_name" required [disabled]="!!user" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" name="email" required [disabled]="!!user" />
+      </div>
+      <div class="form-group" *ngIf="!user">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="password" name="password" required />
+      </div>
+      <div class="form-group">
+        <label>ID Organización (Opcional)</label>
+        <input type="text" [(ngModel)]="organization_id" name="organization_id" />
+      </div>
+
+      <div class="form-group">
+        <label>Roles</label>
+        <div class="role-checkboxes">
+          <label *ngFor="let role of availableRoles">
+            <input type="checkbox" [checked]="roles.includes(role.name)" (change)="toggleRole(role.name)" />
+            {{ role.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="close.emit()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

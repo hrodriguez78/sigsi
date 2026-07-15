@@ -1,0 +1,276 @@
+<app-page-header
+  [title]="pageTitle"
+  [showBackButton]="true"
+  (backClick)="cancel()"
+></app-page-header>
+
+<app-loading-spinner *ngIf="loading" message="Cargando activo..."></app-loading-spinner>
+
+<div class="form-page" *ngIf="!loading">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="asset-form">
+    <div class="form-grid">
+      <div class="form-card">
+        <h3 class="form-card__title">Información General</h3>
+        <div class="form-card__body">
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              formControlName="name"
+              placeholder="Nombre del activo"
+              [class.is-invalid]="isFieldInvalid('name')"
+            />
+            <span class="error-text" *ngIf="isFieldInvalid('name')">{{ getFieldError('name') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="code">Código *</label>
+            <input
+              id="code"
+              type="text"
+              class="form-control"
+              formControlName="code"
+              placeholder="Código único del activo"
+              [class.is-invalid]="isFieldInvalid('code')"
+            />
+            <span class="error-text" *ngIf="isFieldInvalid('code')">{{ getFieldError('code') }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descripción</label>
+            <textarea
+              id="description"
+              class="form-control form-control--textarea"
+              formControlName="description"
+              placeholder="Descripción detallada del activo"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="asset_type">Tipo de Activo *</label>
+              <select
+                id="asset_type"
+                class="form-control"
+                formControlName="asset_type"
+              >
+                <option *ngFor="let t of assetTypes" [value]="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="criticality">Criticidad *</label>
+              <select
+                id="criticality"
+                class="form-control"
+                formControlName="criticality"
+              >
+                <option *ngFor="let c of criticalityOptions" [value]="c.value">{{ c.label }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Estado *</label>
+              <select
+                id="status"
+                class="form-control"
+                formControlName="status"
+              >
+                <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card form-card--cia">
+        <h3 class="form-card__title">
+          Clasificación CIA
+          <span class="form-card__subtitle">(1=Muy Bajo, 5=Muy Alto)</span>
+        </h3>
+        <div class="form-card__body">
+          <div class="cia-form-grid">
+            <div class="cia-form-item">
+              <label for="confidentiality">
+                <span class="cia-form-item__icon">C</span>
+                Confidencialidad
+              </label>
+              <div class="slider-group">
+                <input
+                  id="confidentiality"
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="1"
+                  formControlName="confidentiality"
+                  class="cia-slider"
+                />
+                <span class="slider-value" [ngClass]="'level-' + form.get('confidentiality')?.value">
+                  {{ form.get('confidentiality')?.value }}
+                </span>
+              </div>
+              <div class="slider-labels">
+                <span>Muy Bajo</span>
+                <span>Muy Alto</span>
+              </div>
+            </div>
+
+            <div class="cia-form-item">
+              <label for="integrity">
+                <span class="cia-form-item__icon">I</span>
+                Integridad
+              </label>
+              <div class="slider-group">
+                <input
+                  id="integrity"
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="1"
+                  formControlName="integrity"
+                  class="cia-slider"
+                />
+                <span class="slider-value" [ngClass]="'level-' + form.get('integrity')?.value">
+                  {{ form.get('integrity')?.value }}
+                </span>
+              </div>
+              <div class="slider-labels">
+                <span>Muy Bajo</span>
+                <span>Muy Alto</span>
+              </div>
+            </div>
+
+            <div class="cia-form-item">
+              <label for="availability">
+                <span class="cia-form-item__icon">D</span>
+                Disponibilidad
+              </label>
+              <div class="slider-group">
+                <input
+                  id="availability"
+                  type="range"
+                  min="1"
+                  max="5"
+                  step="1"
+                  formControlName="availability"
+                  class="cia-slider"
+                />
+                <span class="slider-value" [ngClass]="'level-' + form.get('availability')?.value">
+                  {{ form.get('availability')?.value }}
+                </span>
+              </div>
+              <div class="slider-labels">
+                <span>Muy Bajo</span>
+                <span>Muy Alto</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3 class="form-card__title">Información Técnica</h3>
+        <div class="form-card__body">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="location">Ubicación</label>
+              <input
+                id="location"
+                type="text"
+                class="form-control"
+                formControlName="location"
+                placeholder="Ubicación física o lógica"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="brand">Marca</label>
+              <input
+                id="brand"
+                type="text"
+                class="form-control"
+                formControlName="brand"
+                placeholder="Marca del activo"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="model">Modelo</label>
+              <input
+                id="model"
+                type="text"
+                class="form-control"
+                formControlName="model"
+                placeholder="Modelo del activo"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="serial_number">Número de Serie</label>
+              <input
+                id="serial_number"
+                type="text"
+                class="form-control"
+                formControlName="serial_number"
+                placeholder="Número de serie"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="ip_address">Dirección IP</label>
+              <input
+                id="ip_address"
+                type="text"
+                class="form-control"
+                formControlName="ip_address"
+                placeholder="Ej: 192.168.1.1"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="operating_system">Sistema Operativo</label>
+              <input
+                id="operating_system"
+                type="text"
+                class="form-control"
+                formControlName="operating_system"
+                placeholder="Ej: Windows 11, Ubuntu 22.04"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="process_id">ID del Proceso Asociado</label>
+            <input
+              id="process_id"
+              type="text"
+              class="form-control"
+              formControlName="process_id"
+              placeholder="ID del proceso asociado (opcional)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="cancel()">
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="form.invalid || submitting"
+      >
+        <span class="material-icons" *ngIf="!submitting">{{ isEditMode ? 'save' : 'add' }}</span>
+        <span class="material-icons spinning" *ngIf="submitting">autorenew</span>
+        {{ isEditMode ? 'Guardar Cambios' : 'Crear Activo' }}
+      </button>
+    </div>
+  </form>
+</div>

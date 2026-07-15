@@ -1,0 +1,123 @@
+<div class="processes-list">
+  <app-page-header title="Procesos" subtitle="Gestión de procesos del sistema de gestión">
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nuevo Proceso
+    </a>
+  </app-page-header>
+
+  <div class="filters-bar">
+    <div class="search-box">
+      <span class="material-icons search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Buscar procesos..."
+        [(ngModel)]="search"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filterType"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of processTypeOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+
+    <select
+      class="filter-select"
+      [(ngModel)]="filterStatus"
+      (change)="onFilterChange()"
+    >
+      <option *ngFor="let opt of statusOptions" [value]="opt.value">
+        {{ opt.label }}
+      </option>
+    </select>
+  </div>
+
+  <app-loading-spinner
+    *ngIf="loading$ | async"
+    message="Cargando procesos..."
+  ></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!(loading$ | async)">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let process of processes$ | async">
+          <td class="code-cell">{{ process.code }}</td>
+          <td>{{ process.name }}</td>
+          <td>
+            <span class="badge" [ngClass]="getTypeBadgeClass(process.process_type)">
+              {{ getTypeLabel(process.process_type) }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(process.status)">
+              {{ getStatusLabel(process.status) }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <a
+              [routerLink]="[process.id]"
+              class="btn-icon"
+              title="Ver detalle"
+            >
+              <span class="material-icons">visibility</span>
+            </a>
+            <a
+              [routerLink]="[process.id, 'edit']"
+              class="btn-icon"
+              title="Editar"
+            >
+              <span class="material-icons">edit</span>
+            </a>
+            <button
+              class="btn-icon btn-icon--danger"
+              title="Eliminar"
+              (click)="confirmDelete(process)"
+            >
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="(processes$ | async)?.length === 0">
+      <span class="material-icons empty-icon">account_tree</span>
+      <p>No se encontraron procesos</p>
+    </div>
+
+    <div class="table-footer">
+      <app-pagination
+        [currentPage]="currentPage"
+        [totalItems]="(total$ | async) || 0"
+        [pageSize]="pageSize"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    </div>
+  </div>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Proceso"
+  [message]="'¿Está seguro de eliminar el proceso \'' + (processToDelete?.name || '') + '\'?'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

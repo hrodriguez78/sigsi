@@ -1,0 +1,65 @@
+<div class="inspection-detail" *ngIf="!loading && inspection">
+  <app-page-header [title]="inspection.inspection_number + ' - ' + inspection.title" subtitle="Detalle de inspección">
+    <div class="header-actions">
+      <button class="btn btn-link" (click)="goBack()"><span class="material-icons">arrow_back</span> Volver</button>
+      <button class="btn btn-outline" (click)="editInspection()"><span class="material-icons">edit</span> Editar</button>
+      <button class="btn btn-danger-outline" (click)="deleteInspection()"><span class="material-icons">delete</span> Eliminar</button>
+      <button class="btn btn-primary" *ngIf="inspection.status === 'programada'" (click)="updateStatus('en_curso')">Iniciar</button>
+      <button class="btn btn-success" *ngIf="inspection.status === 'en_curso'" (click)="updateStatus('completada')">Completar</button>
+    </div>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3>Información General</h3>
+      <div class="info-row"><label>Tipo:</label> <span>{{ getTypeLabel(inspection.inspection_type) }}</span></div>
+      <div class="info-row"><label>Estado:</label> <span class="badge badge-approved">{{ getStatusLabel(inspection.status) }}</span></div>
+      <div class="info-row"><label>Resultado:</label> <span class="badge badge-info">{{ getResultLabel(inspection.result) }}</span></div>
+      <div class="info-row"><label>Inspector:</label> <span>{{ inspection.inspector_name }}</span></div>
+      <div class="info-row"><label>Ubicación:</label> <span>{{ inspection.location || '-' }}</span></div>
+      <div class="info-row"><label>Programada:</label> <span>{{ inspection.scheduled_date }}</span></div>
+      <div class="info-row" *ngIf="inspection.score !== null"><label>Score:</label> <span class="score-badge" [class.high]="inspection.score >= 80" [class.mid]="inspection.score >= 60 && inspection.score < 80" [class.low]="inspection.score < 60">{{ inspection.score }}</span></div>
+    </div>
+    <div class="detail-card">
+      <h3>Descripción</h3>
+      <p>{{ inspection.description || 'Sin descripción' }}</p>
+      <h3>Notas</h3>
+      <p>{{ inspection.notes || 'Sin notas' }}</p>
+    </div>
+  </div>
+
+  <div class="detail-card" *ngIf="inspection.checklist?.length > 0">
+    <h3>Checklist ({{ inspection.checklist.length }} items)</h3>
+    <table class="data-table">
+      <thead>
+        <tr><th>Item</th><th>Estado</th><th>Observación</th><th>Acciones</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of inspection.checklist; let i = index">
+          <td>{{ item.description }}</td>
+          <td>
+            <span class="material-icons" [ngClass]="getCheckItemStatusClass(item.status)">{{ getCheckItemStatusIcon(item.status) }}</span>
+            {{ item.status }}
+          </td>
+          <td>{{ item.observation || '-' }}</td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-sm" title="Cumple" (click)="updateChecklistItem(i, 'cumple')"><span class="material-icons text-success">check_circle</span></button>
+            <button class="btn-icon btn-sm" title="No cumple" (click)="updateChecklistItem(i, 'no_cumple')"><span class="material-icons text-danger">cancel</span></button>
+            <button class="btn-icon btn-sm" title="N/A" (click)="updateChecklistItem(i, 'no_aplicable')"><span class="material-icons text-muted">remove_circle</span></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="detail-card" *ngIf="inspection.findings?.length > 0">
+    <h3>Hallazgos</h3>
+    <ul><li *ngFor="let f of inspection.findings">{{ f }}</li></ul>
+  </div>
+
+  <div class="detail-card" *ngIf="inspection.corrective_actions?.length > 0">
+    <h3>Acciones Correctivas</h3>
+    <ul><li *ngFor="let a of inspection.corrective_actions">{{ a }}</li></ul>
+  </div>
+</div>
+<app-loading-spinner *ngIf="loading" message="Cargando inspección..."></app-loading-spinner>

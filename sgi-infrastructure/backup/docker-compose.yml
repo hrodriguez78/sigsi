@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mongo-backup:
+    image: mongo:7
+    container_name: sgi-mongo-backup
+    restart: unless-stopped
+    entrypoint: /bin/bash
+    command: >
+      -c "
+      echo 'Starting backup scheduler...';
+      while true; do
+        echo \"[$(date)] Running daily backup...\";
+        mongodump \
+          --host=mongodb:27017 \
+          --username=admin \
+          --password=admin \
+          --authenticationDatabase=admin \
+          --db=sgi_db \
+          --archive=/backups/sgi_\$(date +%Y%m%d).archive \
+          --gzip;
+        echo \"[$(date)] Backup completed\";
+        find /backups -name 'sgi_*.archive' -mtime +30 -delete;
+        echo \"[$(date)] Old backups cleaned\";
+        sleep 86400;
+      done
+      "
+    volumes:
+      - backup_data:/backups
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    networks:
+      - sgi-network
+
+volumes:
+  backup_data:
+
+networks:
+  sgi-network:
+    external: true

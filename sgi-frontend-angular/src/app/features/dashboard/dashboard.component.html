@@ -1,0 +1,82 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <h1>Dashboard Ejecutivo</h1>
+    <div class="dashboard-actions">
+      <button class="action-btn" (click)="toggleEditMode()" [class.active]="editMode"
+              title="Modo edición">
+        <span class="material-icons">{{ editMode ? 'edit_off' : 'edit' }}</span>
+      </button>
+      <button class="action-btn" (click)="toggleSettings()" title="Configurar widgets">
+        <span class="material-icons">settings</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="dashboard-grid" [class]="getGridClass((columns$ | async) || 4)"
+       *ngIf="widgets$ | async as widgets">
+
+    <div *ngFor="let widget of widgets; trackBy: trackByWidgetId"
+         cdkDrag
+         [cdkDragDisabled]="!editMode"
+         [class]="getWidgetSpan(widget)"
+         class="grid-cell">
+
+      <div class="drag-handle" *ngIf="editMode" cdkDragHandle>
+        <span class="material-icons">drag_indicator</span>
+      </div>
+
+      <app-widget-wrapper [widget]="widget" [editMode]="editMode"
+                          (onToggle)="toggleWidget($event)">
+
+        <!-- Stat Card -->
+        <app-widget-stat-card
+          *ngIf="widget.type === 'stat_card'"
+          [entity]="widget.config?.['entity'] || ''"
+          [title]="widget.title"
+          [icon]="widget.icon || 'info'"
+          [color]="widget.color || '#3B82F6'">
+        </app-widget-stat-card>
+
+        <!-- KPI Card -->
+        <app-widget-kpi-card
+          *ngIf="widget.type === 'kpi_card'"
+          [metric]="widget.config?.['metric'] || ''"
+          [title]="widget.title">
+        </app-widget-kpi-card>
+
+        <!-- Risk Chart -->
+        <app-widget-risk-chart
+          *ngIf="widget.type === 'risk_chart'"
+          [chartType]="widget.config?.['chartType'] || 'doughnut'">
+        </app-widget-risk-chart>
+
+        <!-- Trend Chart -->
+        <app-widget-trend-chart
+          *ngIf="widget.type === 'trend_chart'"
+          [datasets]="widget.config?.['datasets'] || ['risks', 'incidents', 'documents']">
+        </app-widget-trend-chart>
+
+        <!-- Compliance Chart -->
+        <app-widget-compliance-chart
+          *ngIf="widget.type === 'compliance_chart'">
+        </app-widget-compliance-chart>
+
+        <!-- Incident Summary -->
+        <app-widget-incident-summary
+          *ngIf="widget.type === 'incident_summary'">
+        </app-widget-incident-summary>
+
+      </app-widget-wrapper>
+    </div>
+  </div>
+</div>
+
+<app-widget-settings
+  [visible]="settingsOpen"
+  [widgets]="(layout$ | async)?.widgets || []"
+  [columns]="(layout$ | async)?.columns || 4"
+  (onClose)="settingsOpen = false"
+  (onToggleWidget)="toggleWidget($event)"
+  (onColumnsChange)="setColumns($event)"
+  (onReset)="resetLayout()">
+</app-widget-settings>

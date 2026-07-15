@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sgi-redis
+  namespace: sgi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sgi-redis
+  template:
+    metadata:
+      labels:
+        app: sgi-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        readinessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sgi-redis
+  namespace: sgi
+spec:
+  selector:
+    app: sgi-redis
+  ports:
+  - port: 6379
+    targetPort: 6379

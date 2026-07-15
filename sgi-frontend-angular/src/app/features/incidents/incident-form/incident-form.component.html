@@ -1,0 +1,226 @@
+<div class="incident-form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Editar Incidente' : 'Reportar Incidente' }}</h1>
+    <button class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="incident-form">
+    <div class="form-section">
+      <h3>Información General</h3>
+
+      <div class="form-group">
+        <label for="title">Título *</label>
+        <input
+          id="title"
+          type="text"
+          class="form-control"
+          formControlName="title"
+          placeholder="Título del incidente"
+          [class.is-invalid]="submitted && f['title'].errors"
+        />
+        <div class="invalid-feedback" *ngIf="submitted && f['title'].errors">
+          <span *ngIf="f['title'].errors['required']">El título es requerido</span>
+          <span *ngIf="f['title'].errors['minlength']">El título debe tener al menos 5 caracteres</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Descripción *</label>
+        <textarea
+          id="description"
+          class="form-control"
+          formControlName="description"
+          rows="4"
+          placeholder="Descripción detallada del incidente"
+          [class.is-invalid]="submitted && f['description'].errors">
+        </textarea>
+        <div class="invalid-feedback" *ngIf="submitted && f['description'].errors">
+          La descripción es requerida
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="incident_type">Tipo de Incidente *</label>
+          <select
+            id="incident_type"
+            class="form-control"
+            formControlName="incident_type"
+            [class.is-invalid]="submitted && f['incident_type'].errors">
+            <option value="">Seleccionar tipo</option>
+            <option *ngFor="let type of incidentTypes" [value]="type.value">
+              {{ type.label }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="submitted && f['incident_type'].errors">
+            El tipo es requerido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="severity">Severidad *</label>
+          <select
+            id="severity"
+            class="form-control"
+            formControlName="severity"
+            [class.is-invalid]="submitted && f['severity'].errors">
+            <option value="">Seleccionar severidad</option>
+            <option *ngFor="let sev of severities" [value]="sev.value">
+              {{ sev.label }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="submitted && f['severity'].errors">
+            La severidad es requerida
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Prioridad *</label>
+          <select
+            id="priority"
+            class="form-control"
+            formControlName="priority"
+            [class.is-invalid]="submitted && f['priority'].errors">
+            <option value="">Seleccionar prioridad</option>
+            <option *ngFor="let pri of priorities" [value]="pri.value">
+              {{ pri.label }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="submitted && f['priority'].errors">
+            La prioridad es requerida
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Estado</label>
+          <select
+            id="status"
+            class="form-control"
+            formControlName="status">
+            <option *ngFor="let st of statuses" [value]="st.value">
+              {{ st.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Detección y Asignación</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="detection_method">Método de Detección</label>
+          <input
+            id="detection_method"
+            type="text"
+            class="form-control"
+            formControlName="detection_method"
+            placeholder="Ej: Monitoreo, Reporte de usuario"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="reported_by">Reportado por</label>
+          <input
+            id="reported_by"
+            type="text"
+            class="form-control"
+            formControlName="reported_by"
+            placeholder="Nombre del reportante"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="assigned_to">Asignado a</label>
+          <input
+            id="assigned_to"
+            type="text"
+            class="form-control"
+            formControlName="assigned_to"
+            placeholder="Persona responsable"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Impacto</h3>
+
+      <div class="form-group">
+        <label for="affected_assets">Activos Afectados</label>
+        <input
+          id="affected_assets"
+          type="text"
+          class="form-control"
+          formControlName="affected_assets"
+          placeholder="Separados por coma: servidor-web, base-datos, firewall"
+        />
+        <small class="form-text text-muted">
+          Separar múltiples activos con comas
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="affected_processes">Procesos Afectados</label>
+        <input
+          id="affected_processes"
+          type="text"
+          class="form-control"
+          formControlName="affected_processes"
+          placeholder="Separados por coma: proceso-ventas, proceso-reportes"
+        />
+        <small class="form-text text-muted">
+          Separar múltiples procesos con comas
+        </small>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Resolución</h3>
+
+      <div class="form-group">
+        <label for="root_cause">Causa Raíz</label>
+        <textarea
+          id="root_cause"
+          class="form-control"
+          formControlName="root_cause"
+          rows="3"
+          placeholder="Análisis de causa raíz del incidente">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="containment_actions">Acciones de Contención</label>
+        <textarea
+          id="containment_actions"
+          class="form-control"
+          formControlName="containment_actions"
+          rows="3"
+          placeholder="Acciones tomadas para contener el incidente">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="lessons_learned">Lecciones Aprendidas</label>
+        <textarea
+          id="lessons_learned"
+          class="form-control"
+          formControlName="lessons_learned"
+          rows="3"
+          placeholder="Lecciones aprendidas del incidente">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <span *ngIf="loading">Guardando...</span>
+        <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear' }} Incidente</span>
+      </button>
+    </div>
+  </form>
+</div>

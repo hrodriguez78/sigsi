@@ -1,0 +1,92 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+
+  &__header {
+    padding: 20px 24px 0;
+
+    h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+  }
+
+  &__body {
+    padding: 16px 24px;
+
+    p {
+      margin: 0;
+      color: #64748b;
+      line-height: 1.5;
+    }
+  }
+
+  &__footer {
+    padding: 0 24px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+
+  &-ghost {
+    background: transparent;
+    color: #64748b;
+    border-color: #e2e8f0;
+
+    &:hover {
+      background: #f8fafc;
+    }
+  }
+
+  &--danger {
+    background: #dc2626;
+    color: #fff;
+
+    &:hover {
+      background: #b91c1c;
+    }
+  }
+
+  &--warning {
+    background: #f59e0b;
+    color: #fff;
+
+    &:hover {
+      background: #d97706;
+    }
+  }
+
+  &--info {
+    background: #3b82f6;
+    color: #fff;
+
+    &:hover {
+      background: #2563eb;
+    }
+  }
+}

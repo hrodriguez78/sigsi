@@ -1,0 +1,74 @@
+<div class="training-detail" *ngIf="course">
+  <div class="header-row">
+    <div>
+      <h1>{{ course.title }}</h1>
+      <p class="subtitle">{{ course.code }} — {{ categories[course.category] || course.category }}</p>
+    </div>
+    <div class="actions">
+      <a [routerLink]="['/training']" class="btn btn-outline">Volver</a>
+      <a [routerLink]="['/training', course.id, 'edit']" class="btn btn-primary">Editar</a>
+      <button class="btn btn-danger" (click)="deleteCourse()">Eliminar</button>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>Información General</h3>
+      <div class="field"><label>Descripción</label><p>{{ course.description || 'Sin descripción' }}</p></div>
+      <div class="field"><label>Duración</label><p>{{ course.duration_hours }} horas</p></div>
+      <div class="field"><label>Instructor</label><p>{{ course.instructor || 'No asignado' }}</p></div>
+      <div class="field"><label>Máx. Participantes</label><p>{{ course.max_participants || 'Sin límite' }}</p></div>
+      <div class="field"><label>Obligatorio</label><p>{{ course.is_mandatory ? 'Sí' : 'No' }}</p></div>
+    </div>
+
+    <div class="card">
+      <h3>Estado</h3>
+      <div class="field">
+        <label>Estado del curso</label>
+        <span class="badge" [ngClass]="'badge-' + course.status">{{ statuses[course.status] || course.status }}</span>
+      </div>
+      <div class="field"><label>Inscritos</label><p class="stat-number">{{ course.enrollments_count }}</p></div>
+      <div class="field"><label>Completados</label><p class="stat-number">{{ course.completed_count }}</p></div>
+      <div class="field" *ngIf="course.tags.length">
+        <label>Etiquetas</label>
+        <div class="tags">
+          <span *ngFor="let tag of course.tags" class="tag">{{ tag }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="course.description">
+    <h3>Descripción del Curso</h3>
+    <pre class="content-outline">{{ course.description }}</pre>
+  </div>
+
+  <div class="card">
+    <h3>Inscripciones ({{ enrollments.length }})</h3>
+    <table *ngIf="enrollments.length > 0">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Estado</th>
+          <th>Inscrito</th>
+          <th>Completado</th>
+          <th>Puntaje</th>
+          <th>Certificado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of enrollments">
+          <td>{{ e.user_id }}</td>
+          <td><span class="badge" [ngClass]="'badge-' + e.status">{{ enrollmentStatuses[e.status] || e.status }}</span></td>
+          <td>{{ e.enrolled_at | date:'dd/MM/yyyy' }}</td>
+          <td>{{ e.completed_at ? (e.completed_at | date:'dd/MM/yyyy') : '-' }}</td>
+          <td>{{ e.score != null ? e.score : '-' }}</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="enrollments.length === 0" class="empty-text">No hay inscripciones registradas</p>
+  </div>
+</div>
+
+<app-loading-spinner *ngIf="!course"></app-loading-spinner>

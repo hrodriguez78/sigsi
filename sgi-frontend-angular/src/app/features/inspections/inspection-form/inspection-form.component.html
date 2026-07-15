@@ -1,0 +1,59 @@
+<div class="inspection-form-page">
+  <app-page-header [title]="isEdit ? 'Editar Inspección' : 'Nueva Inspección'" subtitle="Complete los datos de la inspección">
+    <button class="btn btn-link" (click)="goBack()"><span class="material-icons">arrow_back</span> Volver</button>
+  </app-page-header>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando..."></app-loading-spinner>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>Información General</h3>
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" formControlName="title" placeholder="Ej: Inspección calidad aseo piso 3" />
+        </div>
+        <div class="form-group">
+          <label>Tipo de Inspección *</label>
+          <select formControlName="inspection_type">
+            <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea formControlName="description" rows="3" placeholder="Describa el alcance de la inspección..."></textarea>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h3>Programación</h3>
+        <div class="form-group">
+          <label>Ubicación</label>
+          <input type="text" formControlName="location" placeholder="Ej: Torre Alpha, Piso 3" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha Programada</label>
+            <input type="date" formControlName="scheduled_date" />
+          </div>
+          <div class="form-group">
+            <label>Inspector</label>
+            <input type="text" formControlName="inspector_name" placeholder="Nombre del inspector" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notas</label>
+          <textarea formControlName="notes" rows="3" placeholder="Notas adicionales..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving">
+        <span class="material-icons">{{ isEdit ? 'save' : 'add' }}</span>
+        {{ isEdit ? 'Guardar Cambios' : 'Crear Inspección' }}
+      </button>
+    </div>
+  </form>
+</div>

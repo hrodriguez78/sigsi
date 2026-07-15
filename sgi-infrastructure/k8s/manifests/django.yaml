@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sgi-django
+  namespace: sgi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sgi-django
+  template:
+    metadata:
+      labels:
+        app: sgi-django
+    spec:
+      containers:
+      - name: django
+        image: sgi-django:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8001
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: sgi-config
+              key: POSTGRES_HOST
+        - name: DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: sgi-config
+              key: POSTGRES_DB
+        - name: DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: sgi-config
+              key: POSTGRES_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sgi-secrets
+              key: POSTGRES_PASSWORD
+        - name: DJANGO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: sgi-secrets
+              key: DJANGO_SECRET_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health/
+            port: 8001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sgi-django
+  namespace: sgi
+spec:
+  selector:
+    app: sgi-django
+  ports:
+  - port: 8001
+    targetPort: 8001

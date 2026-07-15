@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sgi-mongodb
+  namespace: sgi
+spec:
+  serviceName: sgi-mongodb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sgi-mongodb
+  template:
+    metadata:
+      labels:
+        app: sgi-mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: admin
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sgi-secrets
+              key: MONGO_PASSWORD
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        readinessProbe:
+          exec:
+            command: ["mongosh", "--eval", "db.adminCommand('ping')"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: mongo-init
+        configMap:
+          name: sgi-mongo-init
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sgi-mongodb
+  namespace: sgi
+spec:
+  selector:
+    app: sgi-mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None

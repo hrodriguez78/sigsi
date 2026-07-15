@@ -1,0 +1,67 @@
+<div class="raci-form-page">
+  <app-page-header [title]="isEdit ? 'Editar Matriz RACI' : 'Nueva Matriz RACI'">
+  </app-page-header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="raci-form">
+    <div class="form-card">
+      <h3>Información General</h3>
+      <div class="form-group">
+        <label>Nombre *</label>
+        <input type="text" formControlName="name" placeholder="Ej: Matriz RACI - Procesos Clave" />
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea formControlName="description" rows="3" placeholder="Descripción de la matriz"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Roles / Posiciones</h3>
+      <p class="hint">Define los roles que participarán en los procesos</p>
+      <div class="tag-input-row">
+        <input type="text" [(ngModel)]="roleInput" [ngModelOptions]="{standalone: true}"
+               placeholder="Nombre del rol (ej: Gerente TI)" (keyup.enter)="addRole()" />
+        <button type="button" class="btn btn-primary" (click)="addRole()">Agregar</button>
+      </div>
+      <div class="tags-list" *ngIf="roles.length > 0">
+        <span class="tag" *ngFor="let role of roles; let i = index">
+          {{ role }}
+          <button type="button" class="tag-remove" (click)="removeRole(i)">
+            <span class="material-icons">close</span>
+          </button>
+        </span>
+      </div>
+      <div class="validation-msg" *ngIf="roles.length === 0">
+        <span class="material-icons">info</span> Agrega al menos un rol
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Procesos</h3>
+      <p class="hint">Define los procesos o actividades a evaluar</p>
+      <div class="tag-input-row">
+        <input type="text" [(ngModel)]="processInput" [ngModelOptions]="{standalone: true}"
+               placeholder="Nombre o código del proceso (ej: A.5.1.1)" (keyup.enter)="addProcess()" />
+        <button type="button" class="btn btn-primary" (click)="addProcess()">Agregar</button>
+      </div>
+      <div class="tags-list" *ngIf="processes.length > 0">
+        <span class="tag" *ngFor="let proc of processes; let i = index">
+          {{ proc }}
+          <button type="button" class="tag-remove" (click)="removeProcess(i)">
+            <span class="material-icons">close</span>
+          </button>
+        </span>
+      </div>
+      <div class="hint" *ngIf="processes.length === 0">
+        Puedes agregar procesos después (opcional)
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" (click)="router.navigate(['/raci'])">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || roles.length === 0">
+        {{ isEdit ? 'Guardar Cambios' : 'Crear Matriz' }}
+      </button>
+    </div>
+  </form>
+</div>

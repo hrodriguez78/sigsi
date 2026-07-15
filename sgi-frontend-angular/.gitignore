@@ -1,0 +1,33 @@
+# Compiled output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Dependencies
+node_modules/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Misc
+.DS_Store
+Thumbs.db
+.sass-cache/
+connect.lock
+coverage/
+libpeerconnection.log
+npm-debug.log
+testem.log
+typings/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log

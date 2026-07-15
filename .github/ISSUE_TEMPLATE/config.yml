@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentación
+    url: https://github.com/tu-usuario/sgi-platform/wiki
+    about: Consulta la documentación del proyecto
+  - name: Soporte
+    url: mailto:soporte@sgi-platform.com
+    about: Contacta al equipo de soporte
+  - name: Discusiones
+    url: https://github.com/tu-usuario/sgi-platform/discussions
+    about: Usa las discusiones para preguntas generales

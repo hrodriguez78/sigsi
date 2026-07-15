@@ -1,0 +1,168 @@
+<div class="portal-container">
+  <div class="portal-header">
+    <div class="portal-logo">
+      <span class="material-icons">person</span>
+      <h1>Mi Portal de Candidato</h1>
+    </div>
+    <p class="portal-subtitle">Gestiona tu proceso de postulación</p>
+  </div>
+
+  <!-- Search by email (demo mode) -->
+  <div class="search-section" *ngIf="!(candidate$ | async)">
+    <div class="search-card">
+      <h2>Consultar Estado de Postulación</h2>
+      <p>Ingresa tu correo electrónico para ver el estado de tu postulación</p>
+      <div class="search-form">
+        <input class="form-input" type="email" placeholder="tu@email.com" #emailInput />
+        <button class="btn btn-primary" (click)="loadCandidate('6a5520d0ed8014d000e4ad0e')">
+          <span class="material-icons">search</span> Consultar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portal Content -->
+  <div class="portal-content" *ngIf="candidate$ | async as candidate">
+    <!-- Status Banner -->
+    <div class="status-banner" [ngClass]="getStatusClass(candidate.status)">
+      <div class="status-info">
+        <span class="status-label">Estado de tu postulación</span>
+        <span class="status-value">{{ getStatusLabel(candidate.status) }}</span>
+      </div>
+      <div class="status-position">
+        <span class="position-label">Puesto aplicado</span>
+        <span class="position-value">{{ candidate.position_applied }}</span>
+      </div>
+      <div class="status-score" *ngIf="candidate.score">
+        <span class="score-label">Puntaje</span>
+        <span class="score-value">{{ candidate.score }}</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'status'" (click)="setTab('status')">
+        <span class="material-icons">info</span> Mi Estado
+      </button>
+      <button class="tab" [class.active]="activeTab === 'documents'" (click)="setTab('documents')">
+        <span class="material-icons">folder</span> Mis Documentos
+      </button>
+      <button class="tab" [class.active]="activeTab === 'tests'" (click)="setTab('tests')">
+        <span class="material-icons">quiz</span> Mis Pruebas
+      </button>
+      <button class="tab" [class.active]="activeTab === 'timeline'" (click)="setTab('timeline')">
+        <span class="material-icons">history</span> Mi Historial
+      </button>
+    </div>
+
+    <!-- Tab: Status -->
+    <div class="tab-content" *ngIf="activeTab === 'status'">
+      <div class="info-card">
+        <h3>Resumen de tu Postulación</h3>
+        <div class="info-row"><span class="label">Nombre:</span><span>{{ candidate.full_name }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span>{{ candidate.email }}</span></div>
+        <div class="info-row"><span class="label">Teléfono:</span><span>{{ candidate.phone || '-' }}</span></div>
+        <div class="info-row"><span class="label">Puesto:</span><span>{{ candidate.position_applied }}</span></div>
+        <div class="info-row"><span class="label">Fecha de registro:</span><span>{{ candidate.created_at | date:'dd/MM/yyyy' }}</span></div>
+      </div>
+      <div class="info-card" *ngIf="candidate.cover_letter">
+        <h3>Tu Carta de Presentación</h3>
+        <p>{{ candidate.cover_letter }}</p>
+      </div>
+    </div>
+
+    <!-- Tab: Documents -->
+    <div class="tab-content" *ngIf="activeTab === 'documents'">
+      <div class="section-header">
+        <h3>Documentos Requeridos</h3>
+        <button class="btn btn-primary btn-sm" (click)="showUploadDialog = true">
+          <span class="material-icons">cloud_upload</span> Subir Documento
+        </button>
+      </div>
+      <div class="required-docs">
+        <div class="req-doc" *ngFor="let dt of docTypes" [class.uploaded]="false">
+          <span class="material-icons">{{ dt.value === 'hoja_de_vida' ? 'description' : dt.value === 'cedula' ? 'badge' : 'attach_file' }}</span>
+          <span class="req-label">{{ dt.label }}</span>
+        </div>
+      </div>
+      <div class="uploaded-docs" *ngIf="(documents$ | async)?.length">
+        <h4>Documentos Subidos</h4>
+        <div class="doc-item" *ngFor="let doc of documents$ | async">
+          <span class="material-icons">description</span>
+          <div class="doc-info">
+            <span class="doc-name">{{ doc.file_name }}</span>
+            <span class="doc-type">{{ getDocTypeLabel(doc.document_type) }}</span>
+          </div>
+          <span class="doc-status" [class.verified]="doc.verified">
+            {{ doc.verified ? 'Verificado ✓' : 'Pendiente de verificación' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Tests -->
+    <div class="tab-content" *ngIf="activeTab === 'tests'">
+      <h3>Pruebas Asignadas</h3>
+      <div class="test-list">
+        <div class="test-item" *ngFor="let test of tests$ | async">
+          <div class="test-badge" [class.completed]="test.status === 'completado'">
+            {{ getTestTypeLabel(test.test_type) }}
+          </div>
+          <div class="test-info">
+            <h4>{{ test.test_name }}</h4>
+            <p>Duración: {{ test.duration_minutes }} minutos · Puntaje máximo: {{ test.max_score }}</p>
+          </div>
+          <div class="test-result" *ngIf="test.score !== null">
+            <span class="result-score">{{ test.score }}</span>
+            <span class="result-total">/ {{ test.max_score }}</span>
+          </div>
+          <span class="test-pending" *ngIf="test.score === null">Pendiente</span>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="(tests$ | async)?.length === 0">
+        <span class="material-icons empty-icon">quiz</span>
+        <p>No tienes pruebas asignadas aún</p>
+      </div>
+    </div>
+
+    <!-- Tab: Timeline -->
+    <div class="tab-content" *ngIf="activeTab === 'timeline'">
+      <h3>Historial de Actividades</h3>
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let act of activities$ | async">
+          <div class="timeline-dot"></div>
+          <div class="timeline-body">
+            <div class="timeline-head">
+              <span class="timeline-type">{{ act.activity_type | titlecase }}</span>
+              <span class="timeline-date">{{ act.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <p>{{ act.description }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="(activities$ | async)?.length === 0">
+        <span class="material-icons empty-icon">history</span>
+        <p>No hay actividades registradas aún</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Dialog -->
+<div class="modal-overlay" *ngIf="showUploadDialog" (click)="showUploadDialog = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Subir Documento</h3>
+    <select [(ngModel)]="newDoc.document_type" class="form-input">
+      <option *ngFor="let dt of docTypes" [value]="dt.value">{{ dt.label }}</option>
+    </select>
+    <input class="form-input" placeholder="Nombre del archivo" [(ngModel)]="newDoc.file_name" />
+    <div class="upload-area">
+      <span class="material-icons">cloud_upload</span>
+      <p>Arrastra tu archivo aquí o haz clic para seleccionar</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="showUploadDialog = false">Cancelar</button>
+      <button class="btn btn-primary" (click)="uploadDocument()">Subir</button>
+    </div>
+  </div>
+</div>

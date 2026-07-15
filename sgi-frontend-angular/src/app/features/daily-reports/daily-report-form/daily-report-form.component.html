@@ -1,0 +1,69 @@
+<div class="daily-report-form-page">
+  <app-page-header [title]="isEdit ? 'Editar Reporte Diario' : 'Nuevo Reporte Diario'" subtitle="Complete los datos del reporte">
+    <button class="btn btn-link" (click)="goBack()"><span class="material-icons">arrow_back</span> Volver</button>
+  </app-page-header>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando..."></app-loading-spinner>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>Información General</h3>
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" formControlName="title" placeholder="Ej: Bitácora diaria aseo piso 3" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de Reporte *</label>
+            <select formControlName="report_type">
+              <option *ngFor="let opt of typeOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha del Reporte *</label>
+            <input type="date" formControlName="report_date" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Reportado por</label>
+            <input type="text" formControlName="reported_by" placeholder="Nombre del operario" />
+          </div>
+          <div class="form-group">
+            <label>Horas Trabajadas *</label>
+            <input type="number" formControlName="hours_worked" min="0" step="0.5" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea formControlName="description" rows="3" placeholder="Describa las actividades realizadas..."></textarea>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h3>Detalles</h3>
+        <div class="form-group">
+          <label>Actividades Realizadas (una por línea)</label>
+          <textarea formControlName="activities_performed" rows="5" placeholder="Aspirado de alfombras&#10;Fregado de pisos&#10;Aseo de baños"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Problemas Encontrados (una por línea)</label>
+          <textarea formControlName="issues_found" rows="3" placeholder="Fuga de agua en baño 2&#10;Equipo dañado"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Recomendaciones</label>
+          <textarea formControlName="recommendations" rows="3" placeholder="Recomendaciones adicionales..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving">
+        <span class="material-icons">{{ isEdit ? 'save' : 'add' }}</span>
+        {{ isEdit ? 'Guardar Cambios' : 'Crear Reporte' }}
+      </button>
+    </div>
+  </form>
+</div>

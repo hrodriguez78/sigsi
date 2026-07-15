@@ -1,0 +1,212 @@
+:root {
+  --primary-color: #e94560;
+  --primary-hover: #d63851;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f6fa;
+  --bg-tertiary: #f0f0f0;
+  --bg-surface: #ffffff;
+  --bg-muted: #f8f9fa;
+  --bg-hover: #f1f5f9;
+  --text-primary: #1a1a2e;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --text-dark: #1a1a2e;
+  --text-code: #0f3460;
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-focus: rgba(233, 69, 96, 0.15);
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #cccccc;
+  --topbar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --table-hover: #f8f9fa;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --danger: #e94560;
+  --info: #2196f3;
+}
+
+[data-theme="dark"] {
+  --primary-color: #e94560;
+  --primary-hover: #ff5a75;
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2a2a2a;
+  --bg-surface: #1e1e1e;
+  --bg-muted: #252525;
+  --bg-hover: #2a2a2a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
+  --text-dark: #e0e0e0;
+  --text-code: #64b5f6;
+  --border-color: #333333;
+  --border-light: #2a2a2a;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-focus: rgba(233, 69, 96, 0.25);
+  --sidebar-bg: #0d0d14;
+  --sidebar-text: #bbbbbb;
+  --topbar-bg: #1a1a1a;
+  --card-bg: #1e1e1e;
+  --table-hover: #252525;
+  --success: #66bb6a;
+  --warning: #ffa726;
+  --danger: #ef5350;
+  --info: #42a5f5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: background-color 0.3s;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.2s;
+
+  &-primary {
+    background-color: var(--primary-color);
+    color: white;
+
+    &:hover {
+      background-color: var(--primary-hover);
+    }
+  }
+
+  &-secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+
+    &:hover {
+      background-color: var(--border-color);
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+  }
+
+  th {
+    background: var(--bg-tertiary);
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  td {
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  tr:hover td {
+    background: var(--table-hover);
+  }
+}
+
+.table-container {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: background-color 0.3s;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

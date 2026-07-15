@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sgi-ingress
+  namespace: sgi
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - sgi.example.com
+    secretName: sgi-tls
+  rules:
+  - host: sgi.example.com
+    http:
+      paths:
+      - path: /api/v1
+        pathType: Prefix
+        backend:
+          service:
+            name: sgi-fastapi
+            port:
+              number: 8000
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: sgi-django
+            port:
+              number: 8001
+      - path: /django-api
+        pathType: Prefix
+        backend:
+          service:
+            name: sgi-django
+            port:
+              number: 8001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sgi-nginx
+            port:
+              number: 80

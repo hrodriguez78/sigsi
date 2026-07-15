@@ -1,0 +1,197 @@
+<app-page-header title="Activos de Información" subtitle="Gestión de activos ISO 27001">
+  <button class="btn btn-outline" (click)="exportData()">
+    <span class="material-icons">download</span> Exportar Excel
+  </button>
+  <button class="btn btn--primary" (click)="navigateToNew()">
+    <span class="material-icons">add</span>
+    Nuevo Activo
+  </button>
+</app-page-header>
+
+<div class="filters-bar">
+  <div class="filters-bar__group">
+    <div class="filter-item">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar activos..."
+        [(ngModel)]="search"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="filter-item">
+      <select
+        class="form-control"
+        [(ngModel)]="filterType"
+        (change)="onFilterChange()"
+      >
+        <option *ngFor="let t of assetTypes" [value]="t.value">{{ t.label }}</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <select
+        class="form-control"
+        [(ngModel)]="filterCriticality"
+        (change)="onFilterChange()"
+      >
+        <option *ngFor="let c of criticalityOptions" [value]="c.value">{{ c.label }}</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <select
+        class="form-control"
+        [(ngModel)]="filterStatus"
+        (change)="onFilterChange()"
+      >
+        <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+      </select>
+    </div>
+    <button class="btn btn--outline" (click)="onSearch()">
+      <span class="material-icons">search</span>
+      Buscar
+    </button>
+  </div>
+</div>
+
+<app-loading-spinner *ngIf="loading" message="Cargando activos..."></app-loading-spinner>
+
+<div class="card" *ngIf="!loading">
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Criticidad</th>
+          <th>CIA</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let asset of assets">
+          <td>
+            <span class="code-cell">{{ asset.code }}</span>
+          </td>
+          <td>
+            <span class="name-cell">{{ asset.name }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getTypeClass(asset.asset_type)">
+              {{ asset.asset_type }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getCriticalityClass(asset.criticality)">
+              {{ asset.criticality }}
+            </span>
+          </td>
+          <td>
+            <div class="cia-mini-gauges">
+              <div class="cia-gauge" [title]="'Confidencialidad: ' + asset.cia.confidentiality">
+                <span class="cia-gauge__label">C</span>
+                <div class="cia-gauge__bar">
+                  <div
+                    class="cia-gauge__fill"
+                    [style.width.%]="asset.cia.confidentiality * 20"
+                    [class.level-low]="asset.cia.confidentiality <= 2"
+                    [class.level-mid]="asset.cia.confidentiality > 2 && asset.cia.confidentiality <= 4"
+                    [class.level-high]="asset.cia.confidentiality === 5"
+                  ></div>
+                </div>
+                <span class="cia-gauge__value">{{ asset.cia.confidentiality }}</span>
+              </div>
+              <div class="cia-gauge" [title]="'Integridad: ' + asset.cia.integrity">
+                <span class="cia-gauge__label">I</span>
+                <div class="cia-gauge__bar">
+                  <div
+                    class="cia-gauge__fill"
+                    [style.width.%]="asset.cia.integrity * 20"
+                    [class.level-low]="asset.cia.integrity <= 2"
+                    [class.level-mid]="asset.cia.integrity > 2 && asset.cia.integrity <= 4"
+                    [class.level-high]="asset.cia.integrity === 5"
+                  ></div>
+                </div>
+                <span class="cia-gauge__value">{{ asset.cia.integrity }}</span>
+              </div>
+              <div class="cia-gauge" [title]="'Disponibilidad: ' + asset.cia.availability">
+                <span class="cia-gauge__label">D</span>
+                <div class="cia-gauge__bar">
+                  <div
+                    class="cia-gauge__fill"
+                    [style.width.%]="asset.cia.availability * 20"
+                    [class.level-low]="asset.cia.availability <= 2"
+                    [class.level-mid]="asset.cia.availability > 2 && asset.cia.availability <= 4"
+                    [class.level-high]="asset.cia.availability === 5"
+                  ></div>
+                </div>
+                <span class="cia-gauge__value">{{ asset.cia.availability }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="{
+                'badge--activo': asset.status === 'activo',
+                'badge--inactivo': asset.status === 'inactivo',
+                'badge--baja': asset.status === 'baja'
+              }"
+            >
+              {{ asset.status }}
+            </span>
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button
+                class="icon-btn"
+                title="Ver detalles"
+                (click)="viewAsset(asset)"
+              >
+                <span class="material-icons">visibility</span>
+              </button>
+              <button
+                class="icon-btn"
+                title="Editar"
+                (click)="editAsset(asset)"
+              >
+                <span class="material-icons">edit</span>
+              </button>
+              <button
+                class="icon-btn icon-btn--danger"
+                title="Eliminar"
+                (click)="confirmDelete(asset)"
+              >
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="assets.length === 0">
+          <td colspan="7" class="empty-state">
+            No se encontraron activos
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination
+    [currentPage]="page"
+    [totalItems]="total"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>
+
+<app-confirm-dialog
+  title="Eliminar Activo"
+  [message]="'¿Está seguro que desea eliminar el activo ' + (assetToDelete?.name || '') + '?'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  [open]="showDeleteDialog"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-confirm-dialog>

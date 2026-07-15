@@ -1,0 +1,71 @@
+<div class="training-list">
+  <app-page-header title="Capacitación y Concienciación" subtitle="Gestión de cursos y seguimiento de asistencia">
+    <button class="btn btn-outline" (click)="exportData()">
+      <span class="material-icons">download</span> Exportar Excel
+    </button>
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nuevo Curso
+    </a>
+  </app-page-header>
+
+  <div class="filters">
+    <input type="text" [(ngModel)]="search" placeholder="Buscar cursos..." (keyup.enter)="onSearch()" class="filter-input" />
+    <select [(ngModel)]="categoryFilter" (change)="onSearch()" class="filter-select">
+      <option value="">Todas las categorías</option>
+      <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+    </select>
+    <select [(ngModel)]="statusFilter" (change)="onSearch()" class="filter-select">
+      <option value="">Todos los estados</option>
+      <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+  <div class="table-container" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Título</th>
+          <th>Categoría</th>
+          <th>Duración (h)</th>
+          <th>Instructor</th>
+          <th>Inscritos</th>
+          <th>Completados</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let course of courses">
+          <td>{{ course.code }}</td>
+          <td>{{ course.title }}</td>
+          <td><span class="badge badge-type">{{ getCategoryLabel(course.category) }}</span></td>
+          <td>{{ course.duration_hours }}</td>
+          <td>{{ course.instructor || '-' }}</td>
+          <td>{{ course.enrollments_count }}</td>
+          <td>{{ course.completed_count }}</td>
+          <td><span class="badge" [ngClass]="'badge-' + course.status">{{ getStatusLabel(course.status) }}</span></td>
+          <td class="actions">
+            <a [routerLink]="[course.id]" class="btn-icon" title="Ver"><span class="material-icons">visibility</span></a>
+            <a [routerLink]="[course.id, 'edit']" class="btn-icon" title="Editar"><span class="material-icons">edit</span></a>
+            <button class="btn-icon btn-danger" title="Eliminar" (click)="deleteCourse(course)"><span class="material-icons">delete</span></button>
+          </td>
+        </tr>
+        <tr *ngIf="courses.length === 0">
+          <td colspan="9" class="empty-row">No hay cursos registrados</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination
+    *ngIf="total > pageSize"
+    [totalItems]="total"
+    [pageSize]="pageSize"
+    [currentPage]="page"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

@@ -1,0 +1,227 @@
+version: "3.8"
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7
+    container_name: sgi-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-admin}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME:-sgi_db}
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.js
+    networks:
+      - sgi-network
+    healthcheck:
+      test: echo "db.runCommand('ping').ok" | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: sgi-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sgi_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sgi-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: sgi-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sgi-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend FastAPI
+  backend-fastapi:
+    build:
+      context: ../sgi-backend-fastapi
+      dockerfile: Dockerfile
+    container_name: sgi-backend-fastapi
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_URI: mongodb://admin:admin@mongodb:27017
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-sgi_db}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-sgi_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-change-in-production}
+    volumes:
+      - ../sgi-backend-fastapi:/app
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sgi-network
+
+  # Django Admin
+  django-admin:
+    build:
+      context: ../sgi-django-admin
+      dockerfile: Dockerfile
+    container_name: sgi-django-admin
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-your-secret-key-change-in-production}
+      DJANGO_DEBUG: "True"
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      POSTGRES_DB: ${POSTGRES_DB:-sgi_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    volumes:
+      - ../sgi-django-admin:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sgi-network
+
+  # Frontend Angular
+  frontend-angular:
+    build:
+      context: ../sgi-frontend-angular
+      dockerfile: Dockerfile
+    container_name: sgi-frontend-angular
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend-fastapi
+      - django-admin
+    networks:
+      - sgi-network
+
+  # Nginx (Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    container_name: sgi-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend-fastapi
+      - django-admin
+      - frontend-angular
+    networks:
+      - sgi-network
+
+  # Ollama (AI Engine)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sgi-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - sgi-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # Prometheus (Monitoring)
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: sgi-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - sgi-network
+
+  # Grafana (Dashboards)
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: sgi-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - sgi-network
+
+  # Alertmanager
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: sgi-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - alertmanager_data:/alertmanager
+    networks:
+      - sgi-network
+
+volumes:
+  mongodb_data:
+  postgres_data:
+  redis_data:
+  ollama_data:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+
+networks:
+  sgi-network:
+    driver: bridge

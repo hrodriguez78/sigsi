@@ -1,0 +1,48 @@
+<div class="daily-report-detail" *ngIf="!loading && report">
+  <app-page-header [title]="report.report_number + ' - ' + report.title" subtitle="Detalle del reporte">
+    <div class="header-actions">
+      <button class="btn btn-link" (click)="goBack()"><span class="material-icons">arrow_back</span> Volver</button>
+      <button class="btn btn-outline" (click)="editReport()"><span class="material-icons">edit</span> Editar</button>
+      <button class="btn btn-danger-outline" (click)="deleteReport()"><span class="material-icons">delete</span> Eliminar</button>
+      <button class="btn btn-primary" *ngIf="report.status === 'borrador'" (click)="updateStatus('enviado')">Enviar</button>
+      <button class="btn btn-success" *ngIf="report.status === 'enviado'" (click)="updateStatus('aprobado')">Aprobar</button>
+      <button class="btn btn-danger" *ngIf="report.status === 'enviado'" (click)="updateStatus('rechazado')">Rechazar</button>
+    </div>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3>Información General</h3>
+      <div class="info-row"><label>Tipo:</label> <span>{{ getTypeLabel(report.report_type) }}</span></div>
+      <div class="info-row"><label>Fecha:</label> <span>{{ report.report_date }}</span></div>
+      <div class="info-row"><label>Reportado por:</label> <span>{{ report.reported_by }}</span></div>
+      <div class="info-row"><label>Horas trabajadas:</label> <span>{{ report.hours_worked }}h</span></div>
+      <div class="info-row"><label>Estado:</label> <span class="badge badge-approved">{{ getStatusLabel(report.status) }}</span></div>
+    </div>
+    <div class="detail-card">
+      <h3>Descripción</h3>
+      <p>{{ report.description || 'Sin descripción' }}</p>
+    </div>
+  </div>
+
+  <div class="detail-card" *ngIf="report.activities_performed?.length > 0">
+    <h3>Actividades Realizadas</h3>
+    <ul><li *ngFor="let a of report.activities_performed">{{ a }}</li></ul>
+  </div>
+
+  <div class="detail-card" *ngIf="report.issues_found?.length > 0">
+    <h3>Problemas Encontrados</h3>
+    <ul><li *ngFor="let i of report.issues_found" class="issue-item">{{ i }}</li></ul>
+  </div>
+
+  <div class="detail-card" *ngIf="report.recommendations">
+    <h3>Recomendaciones</h3>
+    <p>{{ report.recommendations }}</p>
+  </div>
+
+  <div class="detail-card" *ngIf="report.reviewer_comments">
+    <h3>Comentarios del Revisor</h3>
+    <p>{{ report.reviewer_comments }}</p>
+  </div>
+</div>
+<app-loading-spinner *ngIf="loading" message="Cargando reporte..."></app-loading-spinner>

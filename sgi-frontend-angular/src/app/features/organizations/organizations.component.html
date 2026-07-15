@@ -1,0 +1,46 @@
+<div class="organizations">
+  <app-page-header title="Organizaciones" subtitle="Gestión de organizaciones del sistema">
+    <a routerLink="new" class="btn btn-primary">
+      <span class="material-icons">add</span>
+      Nueva Organización
+    </a>
+  </app-page-header>
+
+  <app-loading-spinner *ngIf="loading$ | async" message="Cargando organizaciones..."></app-loading-spinner>
+
+  <div class="table-container" *ngIf="!(loading$ | async)">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>NIT</th>
+          <th>Email</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let org of organizations$ | async">
+          <td>{{ org.name }}</td>
+          <td>{{ org.nit }}</td>
+          <td>{{ org.email || '-' }}</td>
+          <td>{{ org.address || '-' }}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" (click)="selectOrganization(org)" title="Seleccionar organización">
+              <span class="material-icons">check_circle</span>
+              Seleccionar
+            </button>
+            <a [routerLink]="[org.id, 'edit']" class="btn-icon" title="Editar">
+              <span class="material-icons">edit</span>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="(organizations$ | async)?.length === 0">
+      <span class="material-icons empty-icon">business</span>
+      <p>No hay organizaciones registradas</p>
+    </div>
+  </div>
+</div>

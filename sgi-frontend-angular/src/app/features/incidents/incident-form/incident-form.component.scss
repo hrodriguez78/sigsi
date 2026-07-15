@@ -1,0 +1,121 @@
+.incident-form-container {
+  max-width: 900px;
+  margin: 0 auto;
+
+  .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h1 {
+      font-size: 1.75rem;
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+}
+
+.incident-form {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+
+  .form-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      margin: 0 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: var(--info);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+      }
+
+      &.is-invalid {
+        border-color: #dc3545;
+
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+        }
+      }
+    }
+
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+
+    .form-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+  }
+
+  .form-actions {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background: var(--bg-muted);
+    border-radius: 0 0 8px 8px;
+
+    .btn {
+      min-width: 150px;
+    }
+  }
+}

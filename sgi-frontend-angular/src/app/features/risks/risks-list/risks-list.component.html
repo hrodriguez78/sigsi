@@ -1,0 +1,112 @@
+<div class="risks-list">
+  <app-page-header title="Gestión de Riesgos">
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="exportData()">
+        <span class="material-icons">download</span> Exportar Excel
+      </button>
+      <a routerLink="matrix" class="btn btn-secondary">
+        <span class="material-icons">grid_on</span>
+        Ver Matriz
+      </a>
+      <a routerLink="new" class="btn btn-primary">
+        <span class="material-icons">add</span>
+        Nuevo Riesgo
+      </a>
+    </div>
+  </app-page-header>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Buscar</label>
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Nombre o código..."
+        class="filter-input"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label>Categoría</label>
+      <select [formControl]="categoryFilter" class="filter-select">
+        <option *ngFor="let cat of categories" [value]="cat.value">
+          {{ cat.label }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Nivel</label>
+      <select [formControl]="riskLevelFilter" class="filter-select">
+        <option *ngFor="let level of riskLevels" [value]="level.value">
+          {{ level.label }}
+        </option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Estado</label>
+      <select [formControl]="statusFilter" class="filter-select">
+        <option *ngFor="let s of statuses" [value]="s.value">
+          {{ s.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <app-loading-spinner *ngIf="loading$ | async" message="Cargando riesgos..."></app-loading-spinner>
+
+  <div class="table-container" *ngIf="!(loading$ | async)">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Nivel</th>
+          <th>Tratamiento</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let risk of risks$ | async" (click)="viewRisk(risk)" class="clickable-row">
+          <td class="code-cell">{{ risk.code }}</td>
+          <td class="name-cell">{{ risk.name }}</td>
+          <td>
+            <span class="badge badge--category">{{ getCategoryLabel(risk.category) }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getLevelColor(risk.risk_level)">
+              {{ getLevelLabel(risk.risk_level) }} ({{ risk.risk_score }})
+            </span>
+          </td>
+          <td>{{ getTreatmentLabel(risk.treatment) }}</td>
+          <td>
+            <span class="badge badge--status">{{ getStatusLabel(risk.status) }}</span>
+          </td>
+          <td>
+            <a [routerLink]="[risk.id]" class="btn-icon" title="Ver detalle" (click)="$event.stopPropagation()">
+              <span class="material-icons">visibility</span>
+            </a>
+            <a [routerLink]="[risk.id, 'edit']" class="btn-icon" title="Editar" (click)="$event.stopPropagation()">
+              <span class="material-icons">edit</span>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="(risks$ | async)?.length === 0">
+      <span class="material-icons empty-icon">security</span>
+      <p>No se encontraron riesgos</p>
+    </div>
+  </div>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalItems]="(total$ | async) || 0"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

@@ -1,0 +1,187 @@
+<app-loading-spinner *ngIf="loading"></app-loading-spinner>
+
+<div class="incident-detail" *ngIf="incident && !loading">
+  <div class="incident-header">
+    <div class="header-left">
+      <button class="btn btn-link" (click)="goBack()">
+        <i class="material-icons">arrow_back</i> Volver
+      </button>
+      <h1>{{ incident.title }}</h1>
+      <div class="badges-row">
+        <span class="badge severity-badge" [ngClass]="'severity-' + incident.severity">
+          {{ getSeverityLabel(incident.severity) }}
+        </span>
+        <span class="badge priority-badge" [ngClass]="'priority-' + incident.priority">
+          {{ getPriorityLabel(incident.priority) }}
+        </span>
+        <span class="badge status-badge" [ngClass]="'status-' + incident.status">
+          {{ getStatusLabel(incident.status) }}
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="editIncident()">
+        <i class="material-icons">edit</i> Editar
+      </button>
+      <button class="btn btn-danger" (click)="deleteIncidentAction()">
+        <i class="material-icons">delete</i> Eliminar
+      </button>
+    </div>
+  </div>
+
+  <div class="incident-info-cards">
+    <div class="info-card">
+      <div class="info-label">Tipo de Incidente</div>
+      <div class="info-value">{{ getIncidentTypeLabel(incident.incident_type) }}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Método de Detección</div>
+      <div class="info-value">{{ incident.detection_method || '-' }}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Asignado a</div>
+      <div class="info-value">{{ incident.assigned_to || 'Sin asignar' }}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Reportado por</div>
+      <div class="info-value">{{ incident.reported_by || '-' }}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Fecha de Creación</div>
+      <div class="info-value">{{ incident.created_at | date: 'dd/MM/yyyy HH:mm' }}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Resuelto el</div>
+      <div class="info-value">{{ incident.resolved_at ? (incident.resolved_at | date: 'dd/MM/yyyy HH:mm') : 'Pendiente' }}</div>
+    </div>
+  </div>
+
+  <div class="incident-section">
+    <h3>Descripción</h3>
+    <div class="section-content">
+      <p>{{ incident.description || 'Sin descripción' }}</p>
+    </div>
+  </div>
+
+  <div class="incident-section">
+    <h3>Impacto</h3>
+    <div class="section-content">
+      <div class="impact-group" *ngIf="incident.affected_assets && incident.affected_assets.length > 0">
+        <h4>Activos Afectados</h4>
+        <ul class="tag-list">
+          <li *ngFor="let asset of incident.affected_assets" class="tag tag-warning">
+            {{ asset }}
+          </li>
+        </ul>
+      </div>
+      <div class="impact-group" *ngIf="incident.affected_processes && incident.affected_processes.length > 0">
+        <h4>Procesos Afectados</h4>
+        <ul class="tag-list">
+          <li *ngFor="let process of incident.affected_processes" class="tag tag-info">
+            {{ process }}
+          </li>
+        </ul>
+      </div>
+      <p *ngIf="(!incident.affected_assets || incident.affected_assets.length === 0) && (!incident.affected_processes || incident.affected_processes.length === 0)">
+        Sin información de impacto
+      </p>
+    </div>
+  </div>
+
+  <div class="incident-section">
+    <h3>Resolución</h3>
+    <div class="section-content">
+      <div class="resolution-group" *ngIf="incident.root_cause">
+        <h4>Causa Raíz</h4>
+        <p>{{ incident.root_cause }}</p>
+      </div>
+      <div class="resolution-group" *ngIf="incident.containment_actions">
+        <h4>Acciones de Contención</h4>
+        <p>{{ incident.containment_actions }}</p>
+      </div>
+      <div class="resolution-group" *ngIf="incident.lessons_learned">
+        <h4>Lecciones Aprendidas</h4>
+        <p>{{ incident.lessons_learned }}</p>
+      </div>
+      <p *ngIf="!incident.root_cause && !incident.containment_actions && !incident.lessons_learned">
+        Sin información de resolución
+      </p>
+    </div>
+  </div>
+
+  <div class="incident-section status-workflow">
+    <h3>Workflow de Estado</h3>
+    <div class="workflow-steps">
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'abierto', 'step-completed': incident.status !== 'abierto' }">
+        <span class="step-dot"></span>
+        <span class="step-label">Abierto</span>
+      </div>
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'en_investigacion', 'step-completed': incident.status === 'contenido' || incident.status === 'erradicado' || incident.status === 'recuperado' || incident.status === 'cerrado' }">
+        <span class="step-dot"></span>
+        <span class="step-label">En Investigación</span>
+      </div>
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'contenido', 'step-completed': incident.status === 'erradicado' || incident.status === 'recuperado' || incident.status === 'cerrado' }">
+        <span class="step-dot"></span>
+        <span class="step-label">Contenido</span>
+      </div>
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'erradicado', 'step-completed': incident.status === 'recuperado' || incident.status === 'cerrado' }">
+        <span class="step-dot"></span>
+        <span class="step-label">Erradicado</span>
+      </div>
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'recuperado', 'step-completed': incident.status === 'cerrado' }">
+        <span class="step-dot"></span>
+        <span class="step-label">Recuperado</span>
+      </div>
+      <div class="workflow-step" [ngClass]="{ 'step-active': incident.status === 'cerrado' }">
+        <span class="step-dot"></span>
+        <span class="step-label">Cerrado</span>
+      </div>
+    </div>
+    <button class="btn btn-success workflow-advance" (click)="advanceStatus()" *ngIf="incident.status !== 'cerrado'">
+      Avanzar Estado
+    </button>
+  </div>
+
+  <div class="incident-section comments-section">
+    <h3>Comentarios ({{ incident.comments_count || 0 }})</h3>
+    <div class="comments-list">
+      <div class="comment-item" *ngFor="let comment of incident.comments">
+        <div class="comment-header">
+          <span class="comment-author">{{ comment.author }}</span>
+          <span class="comment-date">{{ comment.created_at | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="comment-text">{{ comment.text }}</div>
+      </div>
+      <div class="empty-comments" *ngIf="!incident.comments || incident.comments.length === 0">
+        <p>No hay comentarios aún</p>
+      </div>
+    </div>
+    <div class="add-comment-form">
+      <textarea
+        class="form-control"
+        [(ngModel)]="newComment"
+        placeholder="Agregar un comentario..."
+        rows="3">
+      </textarea>
+      <button class="btn btn-primary" (click)="addComment()" [disabled]="!newComment.trim()">
+        <i class="material-icons">send</i> Agregar Comentario
+      </button>
+    </div>
+  </div>
+
+  <div class="incident-section" *ngIf="incident.tags && incident.tags.length > 0">
+    <h3>Etiquetas</h3>
+    <div class="section-content">
+      <ul class="tag-list">
+        <li *ngFor="let tag of incident.tags" class="tag tag-secondary">
+          {{ tag }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="not-found" *ngIf="!incident && !loading">
+  <h2>Incidente no encontrado</h2>
+  <button class="btn btn-primary" (click)="goBack()">Volver a la lista</button>
+</div>

@@ -1,0 +1,138 @@
+<div class="risk-form">
+  <app-page-header
+    [title]="isEditMode ? 'Editar Riesgo' : 'Nuevo Riesgo'"
+    [showBackButton]="true"
+    (backClick)="goBack()"
+  ></app-page-header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
+    <div class="form-grid">
+      <div class="card">
+        <h3 class="card__title">Información General</h3>
+        <div class="form-fields">
+          <div class="form-group">
+            <label for="code">Código *</label>
+            <input type="text" id="code" formControlName="code" placeholder="RIES-001" />
+          </div>
+
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input type="text" id="name" formControlName="name" placeholder="Nombre del riesgo" />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="description">Descripción</label>
+            <textarea id="description" formControlName="description" rows="3" placeholder="Descripción detallada del riesgo"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="category">Categoría *</label>
+            <select id="category" formControlName="category">
+              <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="status">Estado *</label>
+            <select id="status" formControlName="status">
+              <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="source">Fuente</label>
+            <input type="text" id="source" formControlName="source" placeholder="Origen del riesgo" />
+          </div>
+
+          <div class="form-group">
+            <label for="consequence">Consecuencia</label>
+            <input type="text" id="consequence" formControlName="consequence" placeholder="Posibles consecuencias" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title">Evaluación de Riesgo</h3>
+        <div class="form-fields">
+          <div class="form-group">
+            <label for="probability">Probabilidad (1-5) *</label>
+            <input type="number" id="probability" formControlName="probability" min="1" max="5" />
+          </div>
+
+          <div class="form-group">
+            <label for="impact">Impacto (1-5) *</label>
+            <input type="number" id="impact" formControlName="impact" min="1" max="5" />
+          </div>
+        </div>
+
+        <div class="risk-preview">
+          <div class="preview-label">Vista Previa</div>
+          <div class="preview-formula">
+            <span class="preview-value">{{ form.get('probability')?.value || 1 }}</span>
+            <span class="preview-operator">×</span>
+            <span class="preview-value">{{ form.get('impact')?.value || 1 }}</span>
+            <span class="preview-operator">=</span>
+            <span class="preview-result" [ngClass]="getPreviewScoreColor()">
+              {{ previewScore }}
+              <small>{{ getPreviewLevelLabel() }}</small>
+            </span>
+          </div>
+        </div>
+
+        <div class="mini-matrix-container">
+          <div class="mini-matrix">
+            <div class="matrix-corner">
+              <span class="matrix-axis-label">Prob. ↑</span>
+            </div>
+            <div class="matrix-row" *ngFor="let row of matrixCells">
+              <div
+                class="matrix-cell"
+                *ngFor="let cell of row"
+                [ngClass]="[
+                  'matrix-cell--' + cell.level,
+                  getCellClass(cell.probability, cell.impact)
+                ]"
+              >
+                {{ cell.score }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title">Tratamiento</h3>
+        <div class="form-fields">
+          <div class="form-group">
+            <label for="treatment">Estrategia</label>
+            <select id="treatment" formControlName="treatment">
+              <option *ngFor="let t of treatments" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="treatment_plan">Plan de Tratamiento</label>
+            <textarea id="treatment_plan" formControlName="treatment_plan" rows="4" placeholder="Describa las acciones de tratamiento para este riesgo"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="asset_id">Activo Asociado</label>
+            <input type="text" id="asset_id" formControlName="asset_id" placeholder="ID del activo" />
+          </div>
+
+          <div class="form-group">
+            <label for="process_id">Proceso Asociado</label>
+            <input type="text" id="process_id" formControlName="process_id" placeholder="ID del proceso" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="goBack()">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+        {{ isEditMode ? 'Actualizar' : 'Crear' }} Riesgo
+      </button>
+    </div>
+  </form>
+</div>

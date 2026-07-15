@@ -1,0 +1,128 @@
+<div class="control-form">
+  <app-page-header
+    [title]="isEditMode ? 'Editar Control' : 'Nuevo Control'"
+    subtitle="Información del control ISO 27001:2022"
+    [showBackButton]="true"
+    (backClick)="router.navigate(['/controls'])"
+  ></app-page-header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="control_id">ID Control *</label>
+        <input
+          type="text"
+          id="control_id"
+          formControlName="control_id"
+          placeholder="Ej: A.5.1"
+        />
+        <span class="form-error" *ngIf="form.get('control_id')?.touched && form.get('control_id')?.hasError('required')">
+          El ID del control es requerido
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="name">Nombre *</label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          placeholder="Nombre del control"
+        />
+        <span class="form-error" *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">
+          El nombre es requerido
+        </span>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Descripción</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="3"
+          placeholder="Descripción detallada del control"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Categoría *</label>
+        <select id="category" formControlName="category">
+          <option *ngFor="let opt of categoryOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="annex_a">Referencia Anexo A</label>
+        <input
+          type="text"
+          id="annex_a"
+          formControlName="annex_a"
+          placeholder="Ej: A.5.1"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="iso_clause">Cláusula ISO</label>
+        <input
+          type="text"
+          id="iso_clause"
+          formControlName="iso_clause"
+          placeholder="Ej: 5.1"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="implementation_status">Estado de Implementación *</label>
+        <select id="implementation_status" formControlName="implementation_status">
+          <option *ngFor="let opt of implementationOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="compliance_level">Nivel de Cumplimiento *</label>
+        <select id="compliance_level" formControlName="compliance_level">
+          <option *ngFor="let opt of complianceOptions" [value]="opt.value">
+            {{ opt.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="evidence_description">Descripción de Evidencias</label>
+        <textarea
+          id="evidence_description"
+          formControlName="evidence_description"
+          rows="3"
+          placeholder="Descripción de las evidencias del control"
+        ></textarea>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="notes">Notas</label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          rows="3"
+          placeholder="Notas adicionales"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="router.navigate(['/controls'])"
+      >
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary">
+        {{ isEditMode ? 'Actualizar' : 'Crear' }}
+      </button>
+    </div>
+  </form>
+</div>

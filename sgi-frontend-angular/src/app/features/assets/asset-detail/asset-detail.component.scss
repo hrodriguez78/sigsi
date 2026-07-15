@@ -1,0 +1,323 @@
+:host {
+  display: block;
+}
+
+.detail-page {
+  padding-bottom: 32px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+
+  &__title {
+    margin: 0;
+    padding: 14px 20px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-muted);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  &__body {
+    padding: 16px 20px;
+  }
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detail-label {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  text-align: right;
+  flex: 1;
+
+  &--code {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--text-code);
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &--type {
+    background: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &--activo {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &--inactivo {
+    background: var(--bg-tertiary);
+    color: #757575;
+  }
+
+  &--baja {
+    background: #fce4ec;
+    color: #c62828;
+  }
+}
+
+.cia-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cia-item {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  &__value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.cia-bar {
+  width: 100%;
+  height: 12px;
+  background: var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+
+  &__fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+
+  &--low {
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+  }
+
+  &--medium {
+    background: linear-gradient(90deg, #ffa726, #fb8c00);
+  }
+
+  &--high {
+    background: linear-gradient(90deg, #ef5350, #e53935);
+  }
+}
+
+.cia-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 2px solid var(--border-color);
+  margin-top: 4px;
+
+  &__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  &__value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+}
+
+.risk-assessment {
+  padding: 16px;
+  border-radius: 8px;
+  border: 2px solid;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__icon {
+    font-size: 24px;
+  }
+
+  &__label {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  &__description {
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &.risk--bajo {
+    background: #e6f9e6;
+    border-color: #66bb6a;
+
+    .risk-assessment__icon,
+    .risk-assessment__label {
+      color: #2e7d32;
+    }
+
+    .risk-assessment__description {
+      color: #388e3c;
+    }
+  }
+
+  &.risk--medio {
+    background: #fff8e1;
+    border-color: #ffa726;
+
+    .risk-assessment__icon,
+    .risk-assessment__label {
+      color: #f57f17;
+    }
+
+    .risk-assessment__description {
+      color: #f9a825;
+    }
+  }
+
+  &.risk--alto {
+    background: #fff3e0;
+    border-color: #ff7043;
+
+    .risk-assessment__icon,
+    .risk-assessment__label {
+      color: #e65100;
+    }
+
+    .risk-assessment__description {
+      color: #ef6c00;
+    }
+  }
+
+  &.risk--critico {
+    background: #ffebee;
+    border-color: #ef5350;
+
+    .risk-assessment__icon,
+    .risk-assessment__label {
+      color: #c62828;
+    }
+
+    .risk-assessment__description {
+      color: #d32f2f;
+    }
+  }
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.detail-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  padding: 12px 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+
+  .material-icons {
+    font-size: 18px;
+  }
+
+  &--outline {
+    background: var(--bg-surface);
+    color: var(--text-code);
+    border: 1px solid var(--text-code);
+
+    &:hover {
+      background: var(--text-code);
+      color: #fff;
+    }
+  }
+
+  &--danger {
+    background: var(--bg-surface);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+
+    &:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{{- if .Values.nginx.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sgi-nginx
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replicas: {{ .Values.nginx.replicaCount }}
+  selector:
+    matchLabels:
+      app: sgi-nginx
+  template:
+    metadata:
+      labels:
+        app: sgi-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: "{{ .Values.nginx.image }}:{{ .Values.nginx.tag }}"
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.nginx.port }}
+        resources:
+          {{- toYaml .Values.nginx.resources | nindent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.nginx.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sgi-nginx
+  namespace: {{ .Values.global.namespace }}
+spec:
+  type: {{ .Values.nginx.service.type }}
+  selector:
+    app: sgi-nginx
+  ports:
+  - port: 80
+    targetPort: {{ .Values.nginx.port }}
+  - port: 443
+    targetPort: {{ .Values.nginx.port }}
+{{- end }}

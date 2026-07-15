@@ -1,0 +1,65 @@
+version: 2
+updates:
+  # Python - FastAPI
+  - package-ecosystem: "pip"
+    directory: "/sgi-backend-fastapi"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+      
+  # Python - Django
+  - package-ecosystem: "pip"
+    directory: "/sgi-django-admin"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+      
+  # npm - Angular
+  - package-ecosystem: "npm"
+    directory: "/sgi-frontend-angular"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "javascript"
+      
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/sgi-backend-fastapi"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+      
+  - package-ecosystem: "docker"
+    directory: "/sgi-django-admin"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+      
+  - package-ecosystem: "docker"
+    directory: "/sgi-frontend-angular"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "docker"
+      
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "ci"

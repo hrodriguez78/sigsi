@@ -1,0 +1,113 @@
+<div class="process-form-page">
+  <app-page-header
+    [title]="isEditMode ? 'Editar Proceso' : 'Nuevo Proceso'"
+    [showBackButton]="true"
+    (backClick)="onCancel()"
+  ></app-page-header>
+
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Nombre *</label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Nombre del proceso"
+          />
+          <div class="field-error" *ngIf="isFieldInvalid('name')">
+            <span *ngIf="form.get('name')?.errors?.['required']">
+              El nombre es requerido
+            </span>
+            <span *ngIf="form.get('name')?.errors?.['minlength']">
+              Mínimo 3 caracteres
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="code">Código *</label>
+          <input
+            type="text"
+            id="code"
+            formControlName="code"
+            placeholder="Ej: PRO-001"
+          />
+          <div class="field-error" *ngIf="isFieldInvalid('code')">
+            <span *ngIf="form.get('code')?.errors?.['required']">
+              El código es requerido
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="description">Descripción</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            placeholder="Descripción del proceso"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="process_type">Tipo de Proceso *</label>
+          <select id="process_type" formControlName="process_type">
+            <option value="" disabled>Seleccione un tipo</option>
+            <option
+              *ngFor="let opt of processTypeOptions"
+              [value]="opt.value"
+            >
+              {{ opt.label }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="isFieldInvalid('process_type')">
+            El tipo de proceso es requerido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Estado *</label>
+          <select id="status" formControlName="status">
+            <option value="" disabled>Seleccione un estado</option>
+            <option *ngFor="let opt of statusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+          <div class="field-error" *ngIf="isFieldInvalid('status')">
+            El estado es requerido
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="parent_id">Proceso Padre (opcional)</label>
+          <select id="parent_id" formControlName="parent_id">
+            <option value="">Ninguno (proceso raíz)</option>
+            <option *ngFor="let proc of parentProcesses$ | async" [value]="proc.id">
+              {{ proc.code }} - {{ proc.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="(loading$ | async)"
+        >
+          <app-loading-spinner *ngIf="loading$ | async" size="sm"></app-loading-spinner>
+          {{ isEditMode ? 'Actualizar' : 'Crear' }} Proceso
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

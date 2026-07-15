@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sgi-postgresql
+  namespace: sgi
+spec:
+  serviceName: sgi-postgresql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sgi-postgresql
+  template:
+    metadata:
+      labels:
+        app: sgi-postgresql
+    spec:
+      containers:
+      - name: postgresql
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: sgi-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: sgi-config
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sgi-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: pg-data
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "sgi_user", "-d", "sgi_django"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: pg-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sgi-postgresql
+  namespace: sgi
+spec:
+  selector:
+    app: sgi-postgresql
+  ports:
+  - port: 5432
+    targetPort: 5432
+  clusterIP: None

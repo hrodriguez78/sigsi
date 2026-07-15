@@ -1,0 +1,17 @@
+import { createAction, props } from '@ngrx/store';
+import { Control } from '../../core/models';
+export const loadControls = createAction('[Controls] Load', props<{ organizationId: string; page?: number; pageSize?: number; search?: string; category?: string; implementationStatus?: string }>());
+export const loadControlsSuccess = createAction('[Controls] Load Success', props<{ controls: Control[]; total: number }>());
+export const loadControlsFailure = createAction('[Controls] Load Failure', props<{ error: string }>());
+export const loadControlStats = createAction('[Controls] Load Stats', props<{ organizationId: string }>());
+export const loadControlStatsSuccess = createAction('[Controls] Load Stats Success', props<{ stats: any }>());
+export const loadSoA = createAction('[Controls] Load SoA', props<{ organizationId: string }>());
+export const loadSoASuccess = createAction('[Controls] Load SoA Success', props<{ soa: any }>());
+export const createControl = createAction('[Controls] Create', props<{ data: Partial<Control> }>());
+export const createControlSuccess = createAction('[Controls] Create Success', props<{ control: Control }>());
+export const createControlFailure = createAction('[Controls] Create Failure', props<{ error: string }>());
+export const updateControl = createAction('[Controls] Update', props<{ id: string; data: Partial<Control> }>());
+export const updateControlSuccess = createAction('[Controls] Update Success', props<{ control: Control }>());
+export const updateControlFailure = createAction('[Controls] Update Failure', props<{ error: string }>());
+export const deleteControl = createAction('[Controls] Delete', props<{ id: string }>());
+export const deleteControlSuccess = createAction('[Controls] Delete Success', props<{ id: string }>());

@@ -1,0 +1,203 @@
+<div class="process-detail">
+  <app-page-header
+    title="Detalle del Proceso"
+    [showBackButton]="true"
+    (backClick)="onBack()"
+  >
+    <ng-container *ngIf="process$ | async as process">
+      <a
+        [routerLink]="[process.id, 'edit']"
+        class="btn btn-secondary"
+      >
+        <span class="material-icons">edit</span>
+        Editar
+      </a>
+      <button class="btn btn-danger" (click)="confirmDelete()">
+        <span class="material-icons">delete</span>
+        Eliminar
+      </button>
+    </ng-container>
+  </app-page-header>
+
+  <app-loading-spinner
+    *ngIf="loading$ | async"
+    message="Cargando proceso..."
+  ></app-loading-spinner>
+
+  <ng-container *ngIf="process$ | async as process">
+    <div class="detail-grid">
+      <div class="info-card">
+        <h3 class="info-card__title">
+          <span class="material-icons">info</span>
+          Información General
+        </h3>
+        <div class="info-card__body">
+          <div class="info-row">
+            <span class="info-label">Nombre</span>
+            <span class="info-value">{{ process.name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Código</span>
+            <span class="info-value code">{{ process.code }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Tipo</span>
+            <span class="info-value">
+              <span class="badge badge-type">{{ getTypeLabel(process.process_type) }}</span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            <span class="info-value">
+              <span class="badge" [ngClass]="'badge-' + process.status">
+                {{ getStatusLabel(process.status) }}
+              </span>
+            </span>
+          </div>
+          <div class="info-row" *ngIf="process.risk_level">
+            <span class="info-label">Nivel de Riesgo</span>
+            <span class="info-value">
+              <span class="badge" [ngClass]="'badge-risk-' + process.risk_level">
+                {{ getRiskLabel(process.risk_level) }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3 class="info-card__title">
+          <span class="material-icons">description</span>
+          Descripción
+        </h3>
+        <div class="info-card__body">
+          <p class="description-text">{{ process.description || 'Sin descripción' }}</p>
+        </div>
+      </div>
+
+      <div class="info-card" *ngIf="process.objective || process.scope">
+        <h3 class="info-card__title">
+          <span class="material-icons">gps_fixed</span>
+          Objetivo y Alcance
+        </h3>
+        <div class="info-card__body">
+          <div class="info-row" *ngIf="process.objective">
+            <span class="info-label">Objetivo</span>
+            <span class="info-value">{{ process.objective }}</span>
+          </div>
+          <div class="info-row" *ngIf="process.scope">
+            <span class="info-label">Alcance</span>
+            <span class="info-value">{{ process.scope }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3 class="info-card__title">
+          <span class="material-icons">label</span>
+          Etiquetas
+        </h3>
+        <div class="info-card__body">
+          <div class="tags-list" *ngIf="process.tags?.length; else noTags">
+            <span class="tag" *ngFor="let tag of process.tags">{{ tag }}</span>
+          </div>
+          <ng-template #noTags>
+            <p class="text-muted">Sin etiquetas</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="info-card full-width">
+        <h3 class="info-card__title">
+          <span class="material-icons">schedule</span>
+          Fechas
+        </h3>
+        <div class="info-card__body">
+          <div class="info-row">
+            <span class="info-label">Creado</span>
+            <span class="info-value">{{ process.created_at | date:'medium' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Última actualización</span>
+            <span class="info-value">{{ process.updated_at | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="children-section">
+      <h3 class="section-title">
+        <span class="material-icons">account_tree</span>
+        Sub-procesos
+      </h3>
+
+      <div *ngIf="(children$ | async)?.length; else noChildren">
+        <div class="process-tree">
+          <div class="tree-item" *ngFor="let child of children$ | async">
+            <div class="tree-connector">
+              <span class="material-icons">subdirectory_arrow_right</span>
+            </div>
+            <div class="tree-node" [routerLink]="['/processes', child.id]">
+              <span class="tree-icon material-icons">circle</span>
+              <div class="tree-info">
+                <span class="tree-code">{{ child.code }}</span>
+                <span class="tree-name">{{ child.name }}</span>
+              </div>
+              <span class="badge badge-type">{{ getTypeLabel(child.process_type) }}</span>
+              <span class="badge" [ngClass]="'badge-' + child.status">
+                {{ getStatusLabel(child.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card" style="margin-top: 16px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let child of children$ | async">
+                <td class="code-cell">{{ child.code }}</td>
+                <td>
+                  <a [routerLink]="['/processes', child.id]">{{ child.name }}</a>
+                </td>
+                <td>
+                  <span class="badge badge-type">{{ getTypeLabel(child.process_type) }}</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="'badge-' + child.status">
+                    {{ getStatusLabel(child.status) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ng-template #noChildren>
+        <div class="empty-state">
+          <span class="material-icons">account_tree</span>
+          <p>Este proceso no tiene sub-procesos</p>
+        </div>
+      </ng-template>
+    </div>
+  </ng-container>
+</div>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Proceso"
+  message="¿Está seguro de eliminar este proceso? Esta acción no se puede deshacer."
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

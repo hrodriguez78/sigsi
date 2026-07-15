@@ -1,0 +1,61 @@
+<div class="work-order-detail" *ngIf="!loading && workOrder">
+  <app-page-header [title]="workOrder.order_number + ' - ' + workOrder.title" subtitle="Detalle de orden de trabajo">
+    <div class="header-actions">
+      <button class="btn btn-link" (click)="goBack()"><span class="material-icons">arrow_back</span> Volver</button>
+      <button class="btn btn-outline" (click)="editWorkOrder()"><span class="material-icons">edit</span> Editar</button>
+      <button class="btn btn-danger-outline" (click)="deleteWorkOrder()"><span class="material-icons">delete</span> Eliminar</button>
+      <button class="btn btn-success" *ngIf="workOrder.status === 'programada'" (click)="updateStatus('en_progreso')">
+        <span class="material-icons">play_arrow</span> Iniciar
+      </button>
+      <button class="btn btn-primary" *ngIf="workOrder.status === 'en_progreso'" (click)="updateStatus('completada')">
+        <span class="material-icons">check_circle</span> Completar
+      </button>
+      <button class="btn btn-secondary" *ngIf="workOrder.status === 'completada'" (click)="updateStatus('verificada')">
+        <span class="material-icons">verified</span> Verificar
+      </button>
+    </div>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3>Información General</h3>
+      <div class="info-row"><label>Tipo:</label> <span>{{ getTypeLabel(workOrder.order_type) }}</span></div>
+      <div class="info-row"><label>Prioridad:</label> <span class="badge" [ngClass]="{'badge-rejected': workOrder.priority === 'critica', 'badge-review': workOrder.priority === 'alta'}">{{ getPriorityLabel(workOrder.priority) }}</span></div>
+      <div class="info-row"><label>Estado:</label> <span class="badge badge-approved">{{ getStatusLabel(workOrder.status) }}</span></div>
+      <div class="info-row"><label>Asignado a:</label> <span>{{ workOrder.assigned_to_name || 'Sin asignar' }}</span></div>
+      <div class="info-row"><label>Ubicación:</label> <span>{{ workOrder.location || '-' }}</span></div>
+      <div class="info-row"><label>Programada:</label> <span>{{ workOrder.scheduled_date | date:'dd/MM/yyyy HH:mm' }}</span></div>
+      <div class="info-row"><label>Vencimiento:</label> <span>{{ workOrder.due_date | date:'dd/MM/yyyy HH:mm' }}</span></div>
+    </div>
+
+    <div class="detail-card">
+      <h3>Descripción</h3>
+      <p>{{ workOrder.description || 'Sin descripción' }}</p>
+      <h3>Notas</h3>
+      <p>{{ workOrder.notes || 'Sin notas' }}</p>
+      <h3 *ngIf="workOrder.resolution_notes">Resolución</h3>
+      <p *ngIf="workOrder.resolution_notes">{{ workOrder.resolution_notes }}</p>
+    </div>
+  </div>
+
+  <div class="detail-card">
+    <h3>Comentarios ({{ comments.length }})</h3>
+    <div class="comment-input">
+      <input type="text" [(ngModel)]="newComment" placeholder="Agregar comentario..." (keyup.enter)="addComment()" />
+      <button class="btn btn-primary btn-sm" (click)="addComment()">Enviar</button>
+    </div>
+    <div class="comments-list">
+      <div class="comment" *ngFor="let c of comments">
+        <div class="comment-header">
+          <strong>{{ c.author }}</strong>
+          <span class="comment-date">{{ c.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <p>{{ c.text }}</p>
+      </div>
+      <div class="empty-state" *ngIf="comments.length === 0">
+        <p>No hay comentarios aún</p>
+      </div>
+    </div>
+  </div>
+</div>
+<app-loading-spinner *ngIf="loading" message="Cargando orden de trabajo..."></app-loading-spinner>

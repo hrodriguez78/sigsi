@@ -1,0 +1,38 @@
+<div class="data-table-wrapper">
+  <div *ngIf="loading" class="loading-overlay">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <table class="data-table" *ngIf="!loading && data.length > 0">
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns">{{ col.label }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let row of data; trackBy: trackByFn"
+        (click)="onRowClick(row)"
+        class="clickable"
+      >
+        <td *ngFor="let col of columns">
+          <span
+            *ngIf="col.type === 'badge'"
+            class="badge"
+            [ngClass]="getBadgeClass(row, col)"
+          >
+            {{ getCellValue(row, col) }}
+          </span>
+          <span *ngIf="col.type !== 'badge'">
+            {{ getCellValue(row, col) }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && data.length === 0" class="empty-state">
+    <span class="material-icons empty-icon">inbox</span>
+    <p>{{ emptyMessage }}</p>
+  </div>
+</div>

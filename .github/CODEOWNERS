@@ -1,0 +1,43 @@
+# Code Owners - SGI Platform
+
+# Este archivo define los responsables del código para diferentes partes del proyecto.
+# Los owners son notificados automáticamente en pull requests que afecten su área.
+
+# Documentación general
+*.md @equipo-documentacion
+
+# Backend FastAPI
+sgi-backend-fastapi/ @equipo-backend-fastapi
+sgi-backend-fastapi/app/ @equipo-backend-fastapi
+sgi-backend-fastapi/tests/ @equipo-backend-fastapi
+
+# Django Admin
+sgi-django-admin/ @equipo-django-admin
+sgi-django-admin/apps/ @equipo-django-admin
+sgi-django-admin/config/ @equipo-django-admin
+
+# Frontend Angular
+sgi-frontend-angular/ @equipo-frontend-angular
+sgi-frontend-angular/src/ @equipo-frontend-angular
+sgi-frontend-angular/src/app/ @equipo-frontend-angular
+
+# Infrastructure
+sgi-infrastructure/ @equipo-devops
+sgi-infrastructure/docker-compose.yml @equipo-devops
+sgi-infrastructure/nginx/ @equipo-devops
+sgi-infrastructure/k8s/ @equipo-devops
+
+# Scripts
+scripts/ @equipo-devops
+
+# Configuración del proyecto
+.gitignore @equipo-devops
+README.md @equipo-documentacion
+LICENSE @equipo-legal
+
+# Seguridad
+SECURITY.md @equipo-seguridad
+
+# CI/CD
+.github/ @equipo-devops
+.github/workflows/ @equipo-devops

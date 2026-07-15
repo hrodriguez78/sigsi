@@ -1,0 +1,65 @@
+<div class="layout" [class.sidebar-collapsed]="sidebarCollapsed" [class.mobile-open]="mobileMenuOpen">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="logo">SGI</span>
+      <span class="logo-text" *ngIf="!sidebarCollapsed">SGSI Platform</span>
+      <button class="toggle-btn desktop-only" (click)="toggleSidebar()">
+        <span class="material-icons">{{ sidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</span>
+      </button>
+    </div>
+
+    <div class="sidebar-search" *ngIf="!sidebarCollapsed">
+      <app-search></app-search>
+    </div>
+
+    <div class="sidebar-org" *ngIf="!sidebarCollapsed">
+      <label class="org-label">
+        <span class="material-icons" style="font-size:14px">business</span>
+        Organización
+      </label>
+      <select class="org-select" *ngIf="organizations$ | async as orgs"
+              [ngModel]="(selectedOrg$ | async)?.id"
+              (ngModelChange)="onOrgChange($event)">
+        <option *ngFor="let org of orgs" [value]="org.id">{{ org.name }}</option>
+      </select>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a *ngFor="let item of navItems$ | async"
+         [routerLink]="item.route"
+         class="nav-item"
+         [class.active]="isActive(item.route)"
+         [title]="item.label"
+         (click)="mobileMenuOpen = false">
+        <span class="material-icons nav-icon">{{ item.icon }}</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item theme-toggle-btn" (click)="toggleTheme()" [title]="(theme$ | async) === 'dark' ? 'Modo claro' : 'Modo oscuro'">
+        <span class="material-icons nav-icon">{{ (theme$ | async) === 'dark' ? 'light_mode' : 'dark_mode' }}</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">{{ (theme$ | async) === 'dark' ? 'Modo claro' : 'Modo oscuro' }}</span>
+      </button>
+      <button class="nav-item logout-btn" (click)="logout()" title="Cerrar sesión">
+        <span class="material-icons nav-icon">logout</span>
+        <span class="nav-label" *ngIf="!sidebarCollapsed">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="mobile-backdrop" (click)="mobileMenuOpen = false"></div>
+
+  <div class="main-content">
+    <header class="topbar-mobile">
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+        <span class="material-icons">menu</span>
+      </button>
+      <span class="mobile-title">SGI</span>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sgi
+  labels:
+    app.kubernetes.io/name: sgi
+    app.kubernetes.io/part-of: sgi-platform

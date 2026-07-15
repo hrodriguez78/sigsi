@@ -1,0 +1,50 @@
+<div class="users-list">
+  <app-page-header title="Usuarios" subtitle="Gestión de usuarios del sistema">
+    <button class="btn btn-primary" (click)="openCreate()">
+      <span class="material-icons">person_add</span>
+      Nuevo Usuario
+    </button>
+  </app-page-header>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando usuarios..."></app-loading-spinner>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Organización</th>
+          <th>Roles</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users$ | async">
+          <td class="name-cell">
+            <div class="avatar-sm">{{ user.full_name.charAt(0) }}</div>
+            <span>{{ user.full_name }}</span>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.organization_id || 'Global' }}</td>
+          <td>
+            <span *ngFor="let role of user.roles" class="badge badge-info">{{ role }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="user.is_active ? 'badge-approved' : 'badge-rejected'">
+              {{ user.is_active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon" title="Editar" (click)="editUser(user)">
+              <span class="material-icons">edit</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-user-form *ngIf="showCreateDialog" [user]="userToEdit" (close)="closeDialog()"></app-user-form>

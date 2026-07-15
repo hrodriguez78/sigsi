@@ -1,0 +1,188 @@
+<app-page-header
+  [title]="asset?.name || 'Detalle del Activo'"
+  [subtitle]="asset?.code || ''"
+  [showBackButton]="true"
+  (backClick)="goBack()"
+>
+  <button class="btn btn--outline" (click)="editAsset()">
+    <span class="material-icons">edit</span>
+    Editar
+  </button>
+  <button class="btn btn--danger" (click)="confirmDelete()">
+    <span class="material-icons">delete</span>
+    Eliminar
+  </button>
+</app-page-header>
+
+<app-loading-spinner *ngIf="loading" message="Cargando activo..."></app-loading-spinner>
+
+<div class="detail-page" *ngIf="asset && !loading">
+  <div class="detail-grid">
+    <div class="detail-card">
+      <h3 class="detail-card__title">Información General</h3>
+      <div class="detail-card__body">
+        <div class="detail-row">
+          <span class="detail-label">Nombre</span>
+          <span class="detail-value">{{ asset.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Código</span>
+          <span class="detail-value detail-value--code">{{ asset.code }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Descripción</span>
+          <span class="detail-value">{{ asset.description || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tipo</span>
+          <span class="detail-value">
+            <span class="badge badge--type">{{ getAssetTypeLabel(asset.asset_type) }}</span>
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Estado</span>
+          <span class="detail-value">
+            <span
+              class="badge"
+              [ngClass]="{
+                'badge--activo': asset.status === 'activo',
+                'badge--inactivo': asset.status === 'inactivo',
+                'badge--baja': asset.status === 'baja'
+              }"
+            >
+              {{ getStatusLabel(asset.status) }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h3 class="detail-card__title">Clasificación CIA</h3>
+      <div class="detail-card__body">
+        <div class="cia-section">
+          <div class="cia-item">
+            <div class="cia-item__header">
+              <span class="cia-item__label">Confidencialidad</span>
+              <span class="cia-item__value">{{ asset.cia.confidentiality }} / 5</span>
+            </div>
+            <div class="cia-bar">
+              <div
+                class="cia-bar__fill"
+                [style.width.%]="getCiaPercent(asset.cia.confidentiality)"
+                [ngClass]="getCiaBarClass(asset.cia.confidentiality)"
+              ></div>
+            </div>
+          </div>
+
+          <div class="cia-item">
+            <div class="cia-item__header">
+              <span class="cia-item__label">Integridad</span>
+              <span class="cia-item__value">{{ asset.cia.integrity }} / 5</span>
+            </div>
+            <div class="cia-bar">
+              <div
+                class="cia-bar__fill"
+                [style.width.%]="getCiaPercent(asset.cia.integrity)"
+                [ngClass]="getCiaBarClass(asset.cia.integrity)"
+              ></div>
+            </div>
+          </div>
+
+          <div class="cia-item">
+            <div class="cia-item__header">
+              <span class="cia-item__label">Disponibilidad</span>
+              <span class="cia-item__value">{{ asset.cia.availability }} / 5</span>
+            </div>
+            <div class="cia-bar">
+              <div
+                class="cia-bar__fill"
+                [style.width.%]="getCiaPercent(asset.cia.availability)"
+                [ngClass]="getCiaBarClass(asset.cia.availability)"
+              ></div>
+            </div>
+          </div>
+
+          <div class="cia-summary">
+            <span class="cia-summary__label">Puntuación CIA:</span>
+            <span class="cia-summary__value">{{ getRiskScore() }} / 15</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h3 class="detail-card__title">Nivel de Riesgo</h3>
+      <div class="detail-card__body">
+        <div class="risk-assessment" [ngClass]="getRiskLevelFromCriticality(asset.criticality).class">
+          <div class="risk-assessment__header">
+            <span class="material-icons risk-assessment__icon">
+              {{ asset.criticality === 'critico' ? 'error' : asset.criticality === 'alto' ? 'warning' : asset.criticality === 'medio' ? 'info' : 'check_circle' }}
+            </span>
+            <span class="risk-assessment__label">
+              {{ getRiskLevelFromCriticality(asset.criticality).label }}
+            </span>
+          </div>
+          <p class="risk-assessment__description">
+            {{ getRiskLevelFromCriticality(asset.criticality).description }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h3 class="detail-card__title">Información Adicional</h3>
+      <div class="detail-card__body">
+        <div class="detail-row">
+          <span class="detail-label">Ubicación</span>
+          <span class="detail-value">{{ asset.location || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Marca</span>
+          <span class="detail-value">{{ asset.brand || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Modelo</span>
+          <span class="detail-value">{{ asset.model || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Número de Serie</span>
+          <span class="detail-value">{{ asset.serial_number || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Dirección IP</span>
+          <span class="detail-value detail-value--code">{{ asset.ip_address || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Sistema Operativo</span>
+          <span class="detail-value">{{ asset.operating_system || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card" *ngIf="asset.tags?.length">
+      <h3 class="detail-card__title">Etiquetas</h3>
+      <div class="detail-card__body">
+        <div class="tags-list">
+          <span class="tag" *ngFor="let tag of asset.tags">{{ tag }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-meta">
+    <span>Creado: {{ asset.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+    <span>Actualizado: {{ asset.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+  </div>
+</div>
+
+<app-confirm-dialog
+  title="Eliminar Activo"
+  [message]="'¿Está seguro que desea eliminar el activo ' + (asset?.name || '') + '? Esta acción no se puede deshacer.'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  [open]="showDeleteDialog"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-confirm-dialog>

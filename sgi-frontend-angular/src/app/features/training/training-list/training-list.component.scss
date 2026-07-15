@@ -1,0 +1,109 @@
+.training-list {
+  .filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-input,
+  .filter-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+  }
+
+  .filter-input {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.table-container {
+  background: var(--bg-surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.875rem;
+  }
+
+  th {
+    background-color: var(--bg-muted);
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  tbody tr:hover {
+    background-color: var(--bg-hover);
+  }
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  &.badge-borrador { background-color: #6c757d; color: white; }
+  &.badge-publicado { background-color: #28a745; color: white; }
+  &.badge-en_curso { background-color: #007bff; color: white; }
+  &.badge-completado { background-color: #17a2b8; color: white; }
+  &.badge-archivado { background-color: #fd7e14; color: white; }
+  &.badge-type { background-color: var(--bg-tertiary); color: var(--text-secondary); }
+}
+
+.actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover { background: var(--bg-hover); color: var(--primary-color); }
+}
+
+.btn-danger:hover { color: #dc3545; }
+
+.empty-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem !important;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.875rem;
+}

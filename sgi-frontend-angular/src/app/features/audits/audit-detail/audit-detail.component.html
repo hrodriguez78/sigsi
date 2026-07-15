@@ -1,0 +1,463 @@
+<div class="audit-detail" *ngIf="!loading && audit">
+  <div class="detail-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div class="header-info">
+        <h1>{{ audit.title }}</h1>
+        <div class="header-badges">
+          <span class="badge" [ngClass]="getAuditTypeBadgeClass(audit.audit_type)">
+            {{ getAuditTypeLabel(audit.audit_type) }}
+          </span>
+          <span class="badge" [ngClass]="getStatusBadgeClass(audit.status)">
+            {{ getStatusLabel(audit.status) }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="editAudit()">
+        <span class="material-icons">edit</span>
+        Editar
+      </button>
+      <button class="btn btn-danger" (click)="confirmDelete()">
+        <span class="material-icons">delete</span>
+        Eliminar
+      </button>
+    </div>
+  </div>
+
+  <div class="tabs-bar">
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'info'"
+      (click)="setActiveTab('info')"
+    >
+      <span class="material-icons">info</span>
+      Información
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'findings'"
+      (click)="setActiveTab('findings')"
+    >
+      <span class="material-icons">warning</span>
+      Hallazgos
+      <span class="tab-count" *ngIf="findings.length">{{ findings.length }}</span>
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'corrective-actions'"
+      (click)="setActiveTab('corrective-actions')"
+    >
+      <span class="material-icons">build</span>
+      Acciones Correctivas
+      <span class="tab-count" *ngIf="correctiveActions.length">{{ correctiveActions.length }}</span>
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'checklist'"
+      (click)="setActiveTab('checklist')"
+    >
+      <span class="material-icons">checklist</span>
+      Checklist
+      <span class="tab-count" *ngIf="checklist.length">{{ checklist.length }}</span>
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="activeTab === 'summary'"
+      (click)="setActiveTab('summary')"
+      *ngIf="audit.status === 'completada'"
+    >
+      <span class="material-icons">summarize</span>
+      Resumen
+    </button>
+  </div>
+
+  <!-- Info Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'info'">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Alcance</h3>
+        <p>{{ audit.scope || 'No definido' }}</p>
+      </div>
+      <div class="info-card">
+        <h3>Criterios</h3>
+        <p>{{ audit.criteria || 'No definidos' }}</p>
+      </div>
+      <div class="info-card">
+        <h3>Auditor Principal</h3>
+        <p>{{ audit.auditor_name || 'No asignado' }}</p>
+        <p class="info-email" *ngIf="audit.auditor_email">{{ audit.auditor_email }}</p>
+      </div>
+      <div class="info-card">
+        <h3>Fechas</h3>
+        <div class="date-list">
+          <div class="date-item">
+            <span class="label">Planificada:</span>
+            <span>{{ formatDate(audit.planned_date) }}</span>
+          </div>
+          <div class="date-item">
+            <span class="label">Inicio:</span>
+            <span>{{ formatDate(audit.start_date) }}</span>
+          </div>
+          <div class="date-item">
+            <span class="label">Fin:</span>
+            <span>{{ formatDate(audit.end_date) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="info-card" *ngIf="audit.team_members?.length">
+        <h3>Equipo</h3>
+        <div class="tag-list">
+          <span class="tag" *ngFor="let member of audit.team_members">{{ member }}</span>
+        </div>
+      </div>
+      <div class="info-card" *ngIf="audit.processes_to_audit?.length">
+        <h3>Procesos a Auditar</h3>
+        <div class="tag-list">
+          <span class="tag" *ngFor="let process of audit.processes_to_audit">{{ process }}</span>
+        </div>
+      </div>
+      <div class="info-card full-width" *ngIf="audit.notes">
+        <h3>Notas</h3>
+        <p>{{ audit.notes }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Findings Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'findings'">
+    <div class="section-header">
+      <h2>Hallazgos</h2>
+      <button class="btn btn-primary" (click)="openFindingForm()">
+        <span class="material-icons">add</span>
+        Agregar Hallazgo
+      </button>
+    </div>
+
+    <div class="findings-form" *ngIf="showFindingForm">
+      <h3>Nuevo Hallazgo</h3>
+      <form [formGroup]="findingForm" (ngSubmit)="submitFinding()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Título *</label>
+            <input type="text" formControlName="title" placeholder="Título del hallazgo" />
+          </div>
+          <div class="form-group">
+            <label>Tipo *</label>
+            <select formControlName="finding_type">
+              <option *ngFor="let opt of findingTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Severidad *</label>
+            <select formControlName="severity">
+              <option *ngFor="let opt of severityOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Requisito</label>
+            <input type="text" formControlName="requirement" placeholder="Referencia del requisito" />
+          </div>
+          <div class="form-group full-width">
+            <label>Descripción *</label>
+            <textarea formControlName="description" rows="3" placeholder="Descripción detallada del hallazgo"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Evidencia</label>
+            <textarea formControlName="evidence" rows="2" placeholder="Evidencia encontrada"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeFindingForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="findingForm.invalid">Guardar Hallazgo</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="data-card" *ngIf="!showFindingForm">
+      <table class="data-table" *ngIf="findings.length > 0">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Tipo</th>
+            <th>Severidad</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let finding of findings">
+            <td class="title-cell">{{ finding.title }}</td>
+            <td>
+              <span class="badge" [ngClass]="getFindingTypeBadgeClass(finding.finding_type)">
+                {{ getFindingTypeLabel(finding.finding_type) }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getSeverityBadgeClass(finding.severity)">
+                {{ getSeverityLabel(finding.severity) }}
+              </span>
+            </td>
+            <td class="description-cell" [appTooltip]="finding.description">
+              {{ finding.description | truncate:80 }}
+            </td>
+            <td class="actions-cell">
+              <button
+                class="btn btn-sm btn-secondary"
+                (click)="openCorrectiveActionForm(finding.id)"
+                title="Agregar Acción Correctiva"
+              >
+                <span class="material-icons">add_task</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-state" *ngIf="findings.length === 0">
+        <span class="material-icons empty-icon">check_circle</span>
+        <p>No se han registrado hallazgos</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Corrective Actions Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'corrective-actions'">
+    <div class="section-header">
+      <h2>Acciones Correctivas</h2>
+      <button class="btn btn-primary" (click)="openCorrectiveActionForm()">
+        <span class="material-icons">add</span>
+        Agregar Acción Correctiva
+      </button>
+    </div>
+
+    <div class="findings-form" *ngIf="showCorrectiveActionForm">
+      <h3>Nueva Acción Correctiva</h3>
+      <form [formGroup]="correctiveActionForm" (ngSubmit)="submitCorrectiveAction()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Hallazgo *</label>
+            <select formControlName="finding_id">
+              <option value="">Seleccionar hallazgo</option>
+              <option *ngFor="let f of findings" [value]="f.id">{{ f.title }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Responsable *</label>
+            <input type="text" formControlName="responsible" placeholder="Nombre del responsable" />
+          </div>
+          <div class="form-group">
+            <label>Fecha Límite *</label>
+            <input type="date" formControlName="deadline" />
+          </div>
+          <div class="form-group">
+            <label>Estado *</label>
+            <select formControlName="status">
+              <option *ngFor="let opt of correctiveActionStatusOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>Acción *</label>
+            <textarea formControlName="action" rows="3" placeholder="Descripción de la acción correctiva"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Evidencia</label>
+            <textarea formControlName="evidence" rows="2" placeholder="Evidencia de implementación"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeCorrectiveActionForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="correctiveActionForm.invalid">Guardar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="data-card" *ngIf="!showCorrectiveActionForm">
+      <table class="data-table" *ngIf="correctiveActions.length > 0">
+        <thead>
+          <tr>
+            <th>Hallazgo</th>
+            <th>Acción</th>
+            <th>Responsable</th>
+            <th>Fecha Límite</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ca of correctiveActions">
+            <td class="finding-ref">{{ getFindingTitleById(ca.finding_id) }}</td>
+            <td class="description-cell" [appTooltip]="ca.action">
+              {{ ca.action | truncate:60 }}
+            </td>
+            <td>{{ ca.responsible }}</td>
+            <td class="date-cell">{{ formatDate(ca.deadline) }}</td>
+            <td>
+              <span class="badge" [ngClass]="getCorrectiveActionStatusBadgeClass(ca.status)">
+                {{ getCorrectiveActionStatusLabel(ca.status) }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button
+                class="btn btn-sm btn-success"
+                *ngIf="ca.status === 'pendiente'"
+                (click)="updateCorrectiveActionStatus(ca.id, 'en_progreso')"
+                title="Iniciar"
+              >
+                <span class="material-icons">play_arrow</span>
+              </button>
+              <button
+                class="btn btn-sm btn-primary"
+                *ngIf="ca.status === 'en_progreso'"
+                (click)="updateCorrectiveActionStatus(ca.id, 'completada')"
+                title="Completar"
+              >
+                <span class="material-icons">check</span>
+              </button>
+              <button
+                class="btn btn-sm btn-secondary"
+                *ngIf="ca.status === 'completada'"
+                (click)="updateCorrectiveActionStatus(ca.id, 'verificada')"
+                title="Verificar"
+              >
+                <span class="material-icons">verified</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-state" *ngIf="correctiveActions.length === 0">
+        <span class="material-icons empty-icon">build</span>
+        <p>No se han registrado acciones correctivas</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checklist Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'checklist'">
+    <div class="section-header">
+      <h2>Checklist de Auditoría</h2>
+      <button class="btn btn-primary" (click)="openChecklistForm()">
+        <span class="material-icons">add</span>
+        Agregar Ítem
+      </button>
+    </div>
+
+    <div class="findings-form" *ngIf="showChecklistForm">
+      <h3>Nuevo Ítem de Checklist</h3>
+      <form [formGroup]="checklistForm" (ngSubmit)="submitChecklistItem()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Referencia del Control *</label>
+            <input type="text" formControlName="control_reference" placeholder="Ej: A.5.1.1" />
+          </div>
+          <div class="form-group">
+            <label>Estado *</label>
+            <select formControlName="status">
+              <option *ngFor="let opt of checklistStatusOptions" [value]="opt.value">{{ opt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>Descripción *</label>
+            <textarea formControlName="description" rows="2" placeholder="Descripción del control evaluado"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Observación</label>
+            <textarea formControlName="observation" rows="2" placeholder="Observaciones adicionales"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeChecklistForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="checklistForm.invalid">Guardar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="data-card" *ngIf="!showChecklistForm">
+      <div class="compliance-summary" *ngIf="checklist.length > 0">
+        <div class="compliance-bar">
+          <div class="compliance-fill" [style.width.%]="compliancePercentage"></div>
+        </div>
+        <span class="compliance-text">Cumplimiento: {{ compliancePercentage }}%</span>
+      </div>
+
+      <table class="data-table" *ngIf="checklist.length > 0">
+        <thead>
+          <tr>
+            <th style="width: 40px;"></th>
+            <th>Referencia</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody cdkDropList (cdkDropListDropped)="onChecklistDrop($event)">
+          <tr *ngFor="let item of checklist" cdkDrag>
+            <td class="drag-handle" cdkDragHandle>
+              <span class="material-icons">drag_indicator</span>
+            </td>
+            <td class="ref-cell">{{ item.control_reference }}</td>
+            <td>{{ item.description }}</td>
+            <td>
+              <span class="badge" [ngClass]="getChecklistStatusBadgeClass(item.status)">
+                {{ getChecklistStatusLabel(item.status) }}
+              </span>
+            </td>
+            <td class="observation-cell">{{ item.observation || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="empty-state" *ngIf="checklist.length === 0">
+        <span class="material-icons empty-icon">checklist</span>
+        <p>El checklist está vacío</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Tab -->
+  <div class="tab-content" *ngIf="activeTab === 'summary'">
+    <div class="summary-section">
+      <h2>Resumen de Auditoría</h2>
+      <div class="summary-card">
+        <p class="summary-text">{{ audit.summary || 'Sin resumen registrado.' }}</p>
+      </div>
+      <div class="summary-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ findings.length }}</span>
+          <span class="stat-label">Hallazgos Totales</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ nonConformityCount }}</span>
+          <span class="stat-label">No Conformidades</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ checklist.length }}</span>
+          <span class="stat-label">Ítems Checklist</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ compliancePercentage }}%</span>
+          <span class="stat-label">Cumplimiento</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ correctiveActions.length }}</span>
+          <span class="stat-label">Acciones Correctivas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-loading-spinner *ngIf="loading" message="Cargando auditoría..."></app-loading-spinner>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog"
+  title="Eliminar Auditoría"
+  [message]="'¿Está seguro de eliminar la auditoría \'' + (audit?.title || '') + '\'?'"
+  confirmText="Eliminar"
+  cancelText="Cancelar"
+  type="danger"
+  (confirmed)="onDeleteConfirm()"
+  (cancelled)="onDeleteCancel()"
+></app-confirm-dialog>

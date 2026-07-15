@@ -1,0 +1,168 @@
+<div class="audit-form-page">
+  <app-page-header
+    [title]="isEditMode ? 'Editar Auditoría' : 'Nueva Auditoría'"
+    [subtitle]="isEditMode ? 'Actualizar datos de la auditoría' : 'Registrar una nueva auditoría ISO 27001'"
+    [showBackButton]="true"
+    (backClick)="onCancel()"
+  ></app-page-header>
+
+  <app-loading-spinner *ngIf="loading" message="Cargando auditoría..."></app-loading-spinner>
+
+  <div class="form-card" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="title">Título *</label>
+          <input
+            id="title"
+            type="text"
+            formControlName="title"
+            placeholder="Ej: Auditoría Interna ISO 27001 - Trimestre 1"
+          />
+          <span class="field-error" *ngIf="f['title'].touched && f['title'].errors?.['required']">
+            El título es obligatorio
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="audit_type">Tipo de Auditoría *</label>
+          <select id="audit_type" formControlName="audit_type">
+            <option *ngFor="let opt of auditTypeOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Estado *</label>
+          <select id="status" formControlName="status">
+            <option *ngFor="let opt of statusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="scope">Alcance *</label>
+          <textarea
+            id="scope"
+            formControlName="scope"
+            rows="3"
+            placeholder="Describa el alcance de la auditoría"
+          ></textarea>
+          <span class="field-error" *ngIf="f['scope'].touched && f['scope'].errors?.['required']">
+            El alcance es obligatorio
+          </span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="criteria">Criterios *</label>
+          <textarea
+            id="criteria"
+            formControlName="criteria"
+            rows="3"
+            placeholder="Ej: ISO 27001:2022, controles del Anexo A"
+          ></textarea>
+          <span class="field-error" *ngIf="f['criteria'].touched && f['criteria'].errors?.['required']">
+            Los criterios son obligatorios
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="planned_date">Fecha Planificada</label>
+          <input id="planned_date" type="date" formControlName="planned_date" />
+        </div>
+
+        <div class="form-group">
+          <label for="start_date">Fecha de Inicio</label>
+          <input id="start_date" type="date" formControlName="start_date" />
+        </div>
+
+        <div class="form-group">
+          <label for="end_date">Fecha de Finalización</label>
+          <input id="end_date" type="date" formControlName="end_date" />
+        </div>
+
+        <div class="form-group">
+          <label for="auditor_name">Auditor Principal</label>
+          <input
+            id="auditor_name"
+            type="text"
+            formControlName="auditor_name"
+            placeholder="Nombre del auditor"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="auditor_email">Email del Auditor</label>
+          <input
+            id="auditor_email"
+            type="email"
+            formControlName="auditor_email"
+            placeholder="correo@ejemplo.com"
+          />
+          <span class="field-error" *ngIf="f['auditor_email'].touched && f['auditor_email'].errors?.['email']">
+            Ingrese un correo electrónico válido
+          </span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="team_members">Miembros del Equipo</label>
+          <input
+            id="team_members"
+            type="text"
+            formControlName="team_members"
+            placeholder="Separar por comas: Juan Pérez, María López, Carlos Ruiz"
+          />
+          <span class="field-hint">Separar los nombres con comas</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="processes_to_audit">Procesos a Auditar</label>
+          <input
+            id="processes_to_audit"
+            type="text"
+            formControlName="processes_to_audit"
+            placeholder="Separar por comas: Gestión de Incidentes, Control de Accesos"
+          />
+          <span class="field-hint">Separar los nombres con comas</span>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="summary">Resumen</label>
+          <textarea
+            id="summary"
+            formControlName="summary"
+            rows="4"
+            placeholder="Resumen de la auditoría (visible cuando el estado es Completada)"
+          ></textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="notes">Notas</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            rows="3"
+            placeholder="Notas adicionales internas"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="form.invalid || saving"
+        >
+          <span class="material-icons" *ngIf="!saving">{{ isEditMode ? 'save' : 'add' }}</span>
+          <span class="spinner-sm" *ngIf="saving"></span>
+          {{ saving ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Auditoría') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
