@@ -37,7 +37,7 @@ class ProcessRepository:
 
     async def list_by_organization(
         self,
-        org_id: str,
+        org_id: str = None,
         page: int = 1,
         page_size: int = 20,
         search: str = "",
@@ -45,7 +45,7 @@ class ProcessRepository:
         status: str = "",
         parent_id: str = "",
     ) -> tuple[list[dict], int]:
-        query = {"organization_id": org_id}
+        query = {"organization_id": org_id} if org_id else {}
 
         if search:
             query["$or"] = [
@@ -73,9 +73,10 @@ class ProcessRepository:
         cursor = self.collection.find({"parent_id": parent_id}).sort("code", 1)
         return await cursor.to_list(length=100)
 
-    async def get_tree(self, org_id: str) -> list[dict]:
+    async def get_tree(self, org_id: str = None) -> list[dict]:
+        query = {"organization_id": org_id} if org_id else {}
         all_procs = await self.collection.find(
-            {"organization_id": org_id}
+            query
         ).sort("code", 1).to_list(length=500)
 
         by_id = {str(p["_id"]): p for p in all_procs}

@@ -14,7 +14,8 @@ import {
   publishDocument,
   archiveDocument,
 } from '../../../store/documents/documents.actions';
-import { AuthService } from '../../../core/services/auth.service';
+import { selectSelectedOrganization } from '../../../store/organizations/organizations.selectors';
+import * as OrgActions from '../../../store/organizations/organizations.actions';
 import { ExportService } from '../../../core/services/export.service';
 
 @Component({
@@ -78,16 +79,18 @@ export class DocumentsListComponent implements OnInit, OnDestroy {
   };
 
   private destroy$ = new Subject<void>();
+  private currentOrgId = '';
 
   constructor(
     private store: Store,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private auth: AuthService,
     private exportService: ExportService,
   ) {}
 
   ngOnInit(): void {
+    this.store.dispatch(OrgActions.loadOrganizations({ page: 1, pageSize: 50 }));
+
     this.store
       .select(selectDocuments)
       .pipe(takeUntil(this.destroy$))
@@ -112,7 +115,13 @@ export class DocumentsListComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-    this.loadDocuments();
+    this.store
+      .select(selectSelectedOrganization)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((org) => {
+        this.currentOrgId = org?.id || '';
+        this.loadDocuments();
+      });
   }
 
   ngOnDestroy(): void {
@@ -121,10 +130,9 @@ export class DocumentsListComponent implements OnInit, OnDestroy {
   }
 
   loadDocuments(): void {
-    const orgId = this.auth.currentUser?.organization_id || '';
     this.store.dispatch(
       loadDocuments({
-        organizationId: orgId,
+        organizationId: this.currentOrgId,
         page: this.currentPage,
         pageSize: this.pageSize,
         search: this.search,

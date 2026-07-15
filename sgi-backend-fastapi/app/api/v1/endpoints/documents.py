@@ -90,7 +90,7 @@ async def create_document(
 
 @router.get("", response_model=DocumentListResponse)
 async def list_documents(
-    organization_id: str = Query(...),
+    organization_id: str = Query(""),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query(""),
@@ -102,7 +102,7 @@ async def list_documents(
     db = await get_database()
     repo = DocumentRepository(db)
     docs, total = await repo.list_by_organization(
-        org_id=organization_id,
+        org_id=organization_id or None,
         page=page,
         page_size=page_size,
         search=search,

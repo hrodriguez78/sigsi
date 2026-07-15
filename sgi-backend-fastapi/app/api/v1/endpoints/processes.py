@@ -85,7 +85,7 @@ async def create_process(
 
 @router.get("", response_model=ProcessListResponse)
 async def list_processes(
-    organization_id: str = Query(...),
+    organization_id: str = Query(""),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     search: str = Query(""),
@@ -97,7 +97,7 @@ async def list_processes(
     db = await get_database()
     repo = ProcessRepository(db)
     processes, total = await repo.list_by_organization(
-        org_id=organization_id,
+        org_id=organization_id or None,
         page=page,
         page_size=page_size,
         search=search,
@@ -115,12 +115,12 @@ async def list_processes(
 
 @router.get("/tree")
 async def get_process_tree(
-    organization_id: str = Query(...),
+    organization_id: str = Query(""),
     current_user: dict = Depends(get_current_user),
 ):
     db = await get_database()
     repo = ProcessRepository(db)
-    tree = await repo.get_tree(organization_id)
+    tree = await repo.get_tree(organization_id or None)
     return {"tree": [_serialize_tree(p) for p in tree]}
 
 

@@ -65,10 +65,8 @@ export class ProcessesListComponent implements OnInit, OnDestroy {
     this.store.dispatch(OrgActions.loadOrganizations({ page: 1, pageSize: 50 }));
 
     this.selectedOrg$.pipe(takeUntil(this.destroy$)).subscribe(org => {
-      if (org) {
-        this.currentOrgId = org.id;
-        this.loadProcesses();
-      }
+      this.currentOrgId = org?.id || '';
+      this.loadProcesses();
     });
   }
 
@@ -78,7 +76,6 @@ export class ProcessesListComponent implements OnInit, OnDestroy {
   }
 
   loadProcesses(): void {
-    if (!this.currentOrgId) return;
     this.store.dispatch(
       ProcessActions.loadProcesses({
         organizationId: this.currentOrgId,

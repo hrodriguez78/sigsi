@@ -121,7 +121,7 @@ class DocumentRepository:
 
     async def list_by_organization(
         self,
-        org_id: str,
+        org_id: str = None,
         page: int = 1,
         page_size: int = 20,
         search: str = "",
@@ -129,7 +129,7 @@ class DocumentRepository:
         status: str = "",
         process_id: str = "",
     ) -> tuple[list[dict], int]:
-        query = {"organization_id": org_id}
+        query = {"organization_id": org_id} if org_id else {}
 
         if search:
             query["$or"] = [
