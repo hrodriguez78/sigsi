@@ -18,7 +18,7 @@
     "@angular/core": "^17.3.0",
     "@angular/forms": "^17.3.0",
     "@angular/platform-browser": "^17.3.0",
-    "@angular/platform-browser-dynamic": "^17.3.0",
+    "@angular/platform-browser-dynamic": "^22.1.4",
     "@angular/router": "^17.3.0",
     "@ngrx/effects": "^17.1.0",
     "@ngrx/store": "^17.1.0",
