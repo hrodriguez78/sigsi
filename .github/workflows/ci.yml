@@ -132,7 +132,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Download images
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
     - name: Load images
       run: |
         docker load < backend-image/backend-image.tar.gz
@@ -151,7 +151,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Download images
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
     - name: Load images
       run: |
         docker load < backend-image/backend-image.tar.gz
